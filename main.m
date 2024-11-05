@@ -1,4 +1,5 @@
 #import <Cocoa/Cocoa.h>
+#import "quickSort.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 @property (strong) NSWindow *window;
@@ -9,7 +10,7 @@
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    // Window
+    // Window setup
     NSRect frame = NSMakeRect(0, 0, 400, 200);
     self.window = [[NSWindow alloc] initWithContentRect:frame
                                                styleMask:(NSWindowStyleMaskTitled |
@@ -20,33 +21,60 @@
     [self.window setTitle:@"Sorting Algorithm Visualizer"];
     [self.window makeKeyAndOrderFront:nil];
     
-    // Text field
+    // Text field for input
     self.inputTextField = [[NSTextField alloc] initWithFrame:NSMakeRect(20, 120, 360, 30)];
     [self.window.contentView addSubview:self.inputTextField];
     
-    // Button to submit the value
-    NSButton *submitButton = [[NSButton alloc] initWithFrame:NSMakeRect(150, 70, 100, 30)];
-    [submitButton setTitle:@"Sort"];
-    [submitButton setButtonType:NSButtonTypeMomentaryPushIn];
-    [submitButton setBezelStyle:NSBezelStyleRounded];
-    [submitButton setTarget:self];
-    [submitButton setAction:@selector(showText:)];
-    [self.window.contentView addSubview:submitButton];
+    // Button to trigger sorting
+    NSButton *sortButton = [[NSButton alloc] initWithFrame:NSMakeRect(150, 70, 100, 30)];
+    [sortButton setTitle:@"Sort"];
+    [sortButton setButtonType:NSButtonTypeMomentaryPushIn];
+    [sortButton setBezelStyle:NSBezelStyleRounded];
+    [sortButton setTarget:self];
+    [sortButton setAction:@selector(sortQuick:)];
+    [self.window.contentView addSubview:sortButton];
     
-    // Create the label to display the text
+    // Label for output
     self.outputLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(20, 30, 360, 30)];
     [self.outputLabel setBezeled:NO];
     [self.outputLabel setDrawsBackground:NO];
     [self.outputLabel setEditable:NO];
     [self.outputLabel setSelectable:NO];
-    [self.outputLabel setStringValue:@""]; // Make sure it's empty initially
+    [self.outputLabel setStringValue:@""]; // Initially empty
     [self.window.contentView addSubview:self.outputLabel];
 }
 
-- (void)showText:(id)sender {
-    // Get the text from the input field and display it in the output label
+- (void)sortQuick:(id)sender {
+    // Get the text from the input field
     NSString *inputText = [self.inputTextField stringValue];
-    [self.outputLabel setStringValue:inputText];
+    
+    // Split the string into an array of numbers
+    NSArray *stringArray = [inputText componentsSeparatedByString:@","];
+    int length = (int)[stringArray count];
+    int *array = malloc(length * sizeof(int));
+    
+    // Convert strings to integers
+    for (int i = 0; i < length; i++) {
+        array[i] = [stringArray[i] intValue];
+    }
+    
+    // Call quickSort on the array
+   // quickSort(array, 0, length - 1);
+    
+    // Create a string from the sorted array to display in the output label
+    NSMutableString *sortedString = [NSMutableString string];
+    for (int i = length-1; i >=0; i--) {
+        [sortedString appendFormat:@"%d", array[i]];
+        if (i < length - 1) {
+            [sortedString appendString:@", "]; // Add a comma between numbers
+        }
+    }
+    
+    // Set the output label to the sorted string
+    [self.outputLabel setStringValue:sortedString];
+    
+    // Free allocated memory
+    free(array);
 }
 
 @end
