@@ -11,7 +11,7 @@
     <key>CFBundleExecutable</key>
     <string>Sorting</string>
     <key>CFBundleIconFile</key>
-    <string>r</string>
+    <string>icon</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>NSPrincipalClass</key>

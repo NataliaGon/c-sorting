@@ -57,13 +57,21 @@
     for (int i = 0; i < length; i++) {
         array[i] = [stringArray[i] intValue];
     }
-    
+
+    // Print the array before sorting
+    NSLog(@"Array before sorting:");
+    printArray(array, length);
+
     // Call quickSort on the array
-   // quickSort(array, 0, length - 1);
+    quickSort(array, 0, length - 1);
+
+    // Print the sorted array
+    NSLog(@"Array after sorting:");
+    printArray(array, length);
     
     // Create a string from the sorted array to display in the output label
     NSMutableString *sortedString = [NSMutableString string];
-    for (int i = length-1; i >=0; i--) {
+    for (int i = 0; i < length; i++) {
         [sortedString appendFormat:@"%d", array[i]];
         if (i < length - 1) {
             [sortedString appendString:@", "]; // Add a comma between numbers
