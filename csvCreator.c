@@ -12,7 +12,7 @@ void generateRandomArray(int *array, int size)
     }
 }
 
-void saveArrayToJson(int *array, int size, const char *filename)
+void saveArrayToCsv(int *array, int size, const char *filename)
 {
     FILE *file = fopen(filename, "w");
     if (file == NULL)
@@ -21,9 +21,7 @@ void saveArrayToJson(int *array, int size, const char *filename)
         return;
     }
 
-    // Write the array in JSON format
-    fprintf(file, "{\n\"numbers\": [");
-
+    // Write the array in CSV format
     for (int i = 0; i < size; i++)
     {
         fprintf(file, "%d", array[i]);
@@ -32,8 +30,6 @@ void saveArrayToJson(int *array, int size, const char *filename)
             fprintf(file, ", ");
         }
     }
-
-    fprintf(file, "]\n}");
     fclose(file);
 }
 
@@ -47,10 +43,10 @@ int main()
     // Generate the random array
     generateRandomArray(array, ARRAY_SIZE);
 
-    // Save the array to a JSON file
-    saveArrayToJson(array, ARRAY_SIZE, "array_data.csv");
+    // Save the array to a CSV file
+    saveArrayToCsv(array, ARRAY_SIZE, "array_data.csv");
 
-    printf("Array saved to array_data.json\n");
+    printf("Array saved to array_data.csv\n");
 
     return 0;
 }

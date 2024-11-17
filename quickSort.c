@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "quickSort.h"
+#include "sort.h"
 
 /// We have enter comma separeted values;
 void quickSort(int *array, int low, int high)

@@ -1,17 +1,30 @@
 #import <Cocoa/Cocoa.h>
-#import "quickSort.h"
+#import "sort.h"
+#import "terminal.h"
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 @property (strong) NSWindow *window;
 @property (strong) NSTextField *inputTextField;
 @property (strong) NSTextField *outputLabel;
+@property (nonatomic, strong) NSPopUpButton *dropdown;
+@property (nonatomic, strong) NSTextField *dropdownLabel; 
+@property (nonatomic, strong) NSString *algorithmType;
 @end
 
 @implementation AppDelegate
 
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        // Set the default value for algorithmType
+        _algorithmType = @"Merge";  // Default value
+    }
+    return self;
+}
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Window setup
-    NSRect frame = NSMakeRect(0, 0, 400, 200);
+    NSRect frame = NSMakeRect(0, 0, 1000, 600);
     self.window = [[NSWindow alloc] initWithContentRect:frame
                                                styleMask:(NSWindowStyleMaskTitled |
                                                           NSWindowStyleMaskClosable |
@@ -42,6 +55,49 @@
     [self.outputLabel setSelectable:NO];
     [self.outputLabel setStringValue:@""]; // Initially empty
     [self.window.contentView addSubview:self.outputLabel];
+
+    // Title above dropdown
+    self.dropdownLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(100, 240, 200, 30)];
+    [self.dropdownLabel setBezeled:NO];
+    [self.dropdownLabel setDrawsBackground:NO];
+    [self.dropdownLabel setEditable:NO];
+    [self.dropdownLabel setSelectable:NO];
+    [self.dropdownLabel setStringValue:@"Choose sort type:"];
+    [self.window.contentView addSubview:self.dropdownLabel];
+
+    // Create the dropdown menu
+    self.dropdown = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(100, 200, 200, 30) pullsDown:NO];
+    [self.dropdown addItemWithTitle:@"Merge"];
+    [self.dropdown addItemWithTitle:@"Quick"];
+    [self.dropdown addItemWithTitle:@"Heap"];
+    [self.dropdown setTarget:self];
+    [self.dropdown setAction:@selector(dropdownSelectionChanged:)];
+    [self.window.contentView addSubview:self.dropdown];
+
+    NSButton *sortGeneratedButton = [[NSButton alloc] initWithFrame:NSMakeRect(150, 160, 200, 30)];
+    [sortGeneratedButton setTitle:@"Sort generated array"];
+    [sortGeneratedButton setButtonType:NSButtonTypeMomentaryPushIn];
+    [sortGeneratedButton setBezelStyle:NSBezelStyleRounded];
+    [sortGeneratedButton setTarget:self];
+    // Set the button type to have no default background
+    //[sortGeneratedButton setBezelStyle:NSBezelStyleRegularSquare]; // Optional, keeps a flat look
+    [sortGeneratedButton setBordered:NO]; // Removes the border and background
+    // Enable the button layer to customize appearance
+    sortGeneratedButton.wantsLayer = YES;
+    sortGeneratedButton.layer.backgroundColor = [[NSColor systemBlueColor] CGColor]; // Set background color
+    sortGeneratedButton.layer.cornerRadius = 5.0; // Optional: round corners
+    [sortGeneratedButton setAction:@selector(sortGererated:)];
+    [self.window.contentView addSubview:sortGeneratedButton];
+    
+}
+
+- (void)dropdownSelectionChanged:(id)sender {
+    self.algorithmType = [self.dropdown titleOfSelectedItem];
+    NSLog(@"User selected: %@", self.algorithmType);
+}
+
+- (void)sortGererated:(id)sender{
+    terminal([self.algorithmType UTF8String], 0, 0); //convert to C string from Object-C string
 }
 
 - (void)sortQuick:(id)sender {
