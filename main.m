@@ -8,7 +8,11 @@
 @property (strong) NSTextField *outputLabel;
 @property (nonatomic, strong) NSPopUpButton *dropdown;
 @property (nonatomic, strong) NSTextField *dropdownLabel; 
+@property (nonatomic, strong) NSTextField *dropdownLabelSize; 
+@property (nonatomic, strong) NSPopUpButton *dropdownSize;
 @property (nonatomic, strong) NSString *algorithmType;
+@property (nonatomic, strong) NSString *dataSize;
+@property (nonatomic) int *array;
 @end
 
 @implementation AppDelegate
@@ -18,13 +22,14 @@
     if (self) {
         // Set the default value for algorithmType
         _algorithmType = @"Merge";  // Default value
+        _dataSize = @"100";  // Default value
     }
     return self;
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Window setup
-    NSRect frame = NSMakeRect(0, 0, 1000, 600);
+    NSRect frame = NSMakeRect(0, 0, 2000, 600);
     self.window = [[NSWindow alloc] initWithContentRect:frame
                                                styleMask:(NSWindowStyleMaskTitled |
                                                           NSWindowStyleMaskClosable |
@@ -57,7 +62,7 @@
     [self.window.contentView addSubview:self.outputLabel];
 
     // Title above dropdown
-    self.dropdownLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(100, 240, 200, 30)];
+    self.dropdownLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(400, 240, 200, 30)];
     [self.dropdownLabel setBezeled:NO];
     [self.dropdownLabel setDrawsBackground:NO];
     [self.dropdownLabel setEditable:NO];
@@ -66,7 +71,7 @@
     [self.window.contentView addSubview:self.dropdownLabel];
 
     // Create the dropdown menu
-    self.dropdown = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(100, 200, 200, 30) pullsDown:NO];
+    self.dropdown = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(400, 200, 200, 30) pullsDown:NO];
     [self.dropdown addItemWithTitle:@"Merge"];
     [self.dropdown addItemWithTitle:@"Quick"];
     [self.dropdown addItemWithTitle:@"Heap"];
@@ -74,7 +79,28 @@
     [self.dropdown setAction:@selector(dropdownSelectionChanged:)];
     [self.window.contentView addSubview:self.dropdown];
 
-    NSButton *sortGeneratedButton = [[NSButton alloc] initWithFrame:NSMakeRect(150, 160, 200, 30)];
+    // Title above dropdown
+    self.dropdownLabelSize = [[NSTextField alloc] initWithFrame:NSMakeRect(100, 240, 200, 30)];
+    [self.dropdownLabelSize setBezeled:NO];
+    [self.dropdownLabelSize setDrawsBackground:NO];
+    [self.dropdownLabelSize setEditable:NO];
+    [self.dropdownLabelSize setSelectable:NO];
+    [self.dropdownLabelSize setStringValue:@"Choose data size:"];
+    [self.window.contentView addSubview:self.dropdownLabelSize];
+
+    // Create the dropdown menu
+    self.dropdownSize = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(100, 200, 200, 30) pullsDown:NO];
+    [self.dropdownSize addItemWithTitle:@"100"];
+    [self.dropdownSize addItemWithTitle:@"1000"];
+    [self.dropdownSize addItemWithTitle:@"10000"];
+    [self.dropdownSize addItemWithTitle:@"100000"];
+    [self.dropdownSize addItemWithTitle:@"1000000"];
+    [self.dropdownSize setTarget:self];
+    [self.dropdownSize setAction:@selector(dropdownChangedSize:)];
+    [self.window.contentView addSubview:self.dropdownSize];
+
+
+    NSButton *sortGeneratedButton = [[NSButton alloc] initWithFrame:NSMakeRect(400, 160, 200, 30)];
     [sortGeneratedButton setTitle:@"Sort generated array"];
     [sortGeneratedButton setButtonType:NSButtonTypeMomentaryPushIn];
     [sortGeneratedButton setBezelStyle:NSBezelStyleRounded];
@@ -86,8 +112,20 @@
     sortGeneratedButton.wantsLayer = YES;
     sortGeneratedButton.layer.backgroundColor = [[NSColor systemBlueColor] CGColor]; // Set background color
     sortGeneratedButton.layer.cornerRadius = 5.0; // Optional: round corners
-    [sortGeneratedButton setAction:@selector(sortGererated:)];
+    [sortGeneratedButton setAction:@selector(sortGenerated:)];
     [self.window.contentView addSubview:sortGeneratedButton];
+   
+    NSButton *generateArrayButton = [[NSButton alloc] initWithFrame:NSMakeRect(100, 160, 200, 30)];
+    [generateArrayButton setTitle:@"Generate array"];
+    [generateArrayButton setButtonType:NSButtonTypeMomentaryPushIn];
+    [generateArrayButton setBezelStyle:NSBezelStyleRounded];
+    [generateArrayButton setTarget:self];
+    [generateArrayButton setBordered:NO]; 
+    generateArrayButton.wantsLayer = YES;
+    generateArrayButton.layer.backgroundColor = [[NSColor systemBlueColor] CGColor]; // Set background color
+    generateArrayButton.layer.cornerRadius = 5.0; // Optional: round corners
+    [generateArrayButton setAction:@selector(generateArray:)];
+    [self.window.contentView addSubview:generateArrayButton];
     
 }
 
@@ -96,8 +134,38 @@
     NSLog(@"User selected: %@", self.algorithmType);
 }
 
-- (void)sortGererated:(id)sender{
-    terminal([self.algorithmType UTF8String], 0, 0); //convert to C string from Object-C string
+- (void)dropdownChangedSize:(id)sender {
+    self.dataSize = [self.dropdownSize titleOfSelectedItem];
+    NSLog(@"User selected: %@", self.dataSize);
+}
+
+-(void)generateArray:(id)sender{
+   // First, check if arraySize is set properly (e.g., from the dropdown)
+    NSInteger size = [self.dataSize intValue]; // Get the array size as an integer
+    
+    // Allocate memory for the array based on the size
+    self.array = malloc(size * sizeof(int)); // Allocate space for 'size' integers
+    
+    // Check if allocation succeeded
+    if (self.array == NULL) {
+        NSLog(@"Memory allocation failed.");
+        return;
+    }
+    
+    // Populate the array with random values
+    for (int i = 0; i < size; i++) {
+        self.array[i] = rand() % 1000000; // Random numbers between 0 and 999999
+    }
+    
+    // Optional: Print the generated array to check if it's correct
+    NSLog(@"Generated array:");
+    for (int i = 0; i < size; i++) {
+        NSLog(@"%d", self.array[i]);
+    }
+}
+
+- (void)sortGenerated:(id)sender{
+    terminal([self.algorithmType UTF8String], [self.dataSize intValue], self.array); //convert to C string from Object-C string
 }
 
 - (void)sortQuick:(id)sender {

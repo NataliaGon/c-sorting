@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h> // For malloc
+#include <time.h>   // For time
 #include "terminal.h"
 #include "sort.h"
-// #include "heapSort.h"
 
 /// We have enter comma separeted values;
 
@@ -33,16 +33,19 @@ void generateRandomArray(int *array, int size)
     }
 }
 
-void terminal(const char *algorithmType, int dataSize, char dataType)
+void terminal(const char *algorithmType, int dataSize, int *array)
 {
-    printf("The algorithmType is: %s\n", algorithmType);
+    printf("The algorithmType is: %s\n, %d\n", algorithmType, dataSize);
     // Generate date based on the data type and data size
-    int array[1000]; // replace with dataSize
+    // int array[10]; // replace with dataSize
 
     // Gnerate the array from the text file
-    generateRandomArray(array, 1000); // replace with dataSize
-    if (strcmp(algorithmType, "Merge") == 0)
+    generateRandomArray(array, 10); // replace with dataSize
+    printf("Nearby");
+    if (strcasecmp(algorithmType, "Merge") == 0)
     {
+
+        printf("Merge");
         // mergeSort();
 
         for (int i = 0; i < 1000; i++)
@@ -57,7 +60,12 @@ void terminal(const char *algorithmType, int dataSize, char dataType)
     }
     if (strcmp(algorithmType, "Quick") == 0)
     {
-        // quickSort();
+        printf("Yep I am here\n");
+        clock_t start = clock();
+        quickSort(array, 0, dataSize - 1); // replace with dataSize
+        clock_t end = clock();
+        double time_taken = ((double)end - start) / CLOCKS_PER_SEC; // in seconds
+        printf("Time taken by the algorithm: %f seconds\n", time_taken);
         //  printf("Array contents: ");
         //  for (int i = 0; i < size; i++)
         //  {
