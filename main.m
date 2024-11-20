@@ -85,16 +85,16 @@
     [self.dropdownLabelSize setDrawsBackground:NO];
     [self.dropdownLabelSize setEditable:NO];
     [self.dropdownLabelSize setSelectable:NO];
-    [self.dropdownLabelSize setStringValue:@"Choose data size:"];
+    [self.dropdownLabelSize setStringValue:@"Step1. Choose data size:"];
     [self.window.contentView addSubview:self.dropdownLabelSize];
 
     // Create the dropdown menu
     self.dropdownSize = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(100, 200, 200, 30) pullsDown:NO];
+    [self.dropdownSize addItemWithTitle:@"10"];
     [self.dropdownSize addItemWithTitle:@"100"];
     [self.dropdownSize addItemWithTitle:@"1000"];
     [self.dropdownSize addItemWithTitle:@"10000"];
     [self.dropdownSize addItemWithTitle:@"100000"];
-    [self.dropdownSize addItemWithTitle:@"1000000"];
     [self.dropdownSize setTarget:self];
     [self.dropdownSize setAction:@selector(dropdownChangedSize:)];
     [self.window.contentView addSubview:self.dropdownSize];
