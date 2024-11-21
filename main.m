@@ -19,6 +19,29 @@
 
 @end
 
+@interface SortResult : NSObject
+
+@property (nonatomic, strong) NSString *algorithmName;
+@property (nonatomic) double timeTaken;
+
+- (instancetype)initWithAlgorithmName:(NSString *)algorithmName timeTaken:(double)timeTaken;
+
+@end
+
+@implementation SortResult
+
+- (instancetype)initWithAlgorithmName:(NSString *)algorithmName timeTaken:(double)timeTaken {
+    self = [super init];
+    if (self) {
+        _algorithmName = algorithmName;
+        _timeTaken = timeTaken;
+    }
+    return self;
+}
+
+@end
+
+
 @implementation AppDelegate
 
 - (instancetype)init {
@@ -199,77 +222,88 @@
 
 - (void)sortGenerated:(id)sender{
     terminal([self.algorithmType UTF8String], [self.dataSize intValue], self.array); //convert to C string from Object-C string
+    // After sorting, update the table with the timings
+   [self updateTableWithTimings:globalSortTimings];
 }
 
-- (void)sortQuick:(id)sender {
-    // Get the text from the input field
-    NSString *inputText = [self.inputTextField stringValue];
+// - (void)sortQuick:(id)sender {
+//     // Get the text from the input field
+//     NSString *inputText = [self.inputTextField stringValue];
     
-    // Split the string into an array of numbers
-    NSArray *stringArray = [inputText componentsSeparatedByString:@","];
-    int length = (int)[stringArray count];
-    int *array = malloc(length * sizeof(int));
+//     // Split the string into an array of numbers
+//     NSArray *stringArray = [inputText componentsSeparatedByString:@","];
+//     int length = (int)[stringArray count];
+//     int *array = malloc(length * sizeof(int));
     
-    // Convert strings to integers
-    for (int i = 0; i < length; i++) {
-        array[i] = [stringArray[i] intValue];
-    }
+//     // Convert strings to integers
+//     for (int i = 0; i < length; i++) {
+//         array[i] = [stringArray[i] intValue];
+//     }
 
-    // Print the array before sorting
-    NSLog(@"Array before sorting:");
-    printArray(array, length);
+//     // Print the array before sorting
+//     NSLog(@"Array before sorting:");
+//     printArray(array, length);
 
-    // Call quickSort on the array
-    quickSort(array, 0, length - 1);
+//     // Call quickSort on the array
+//     quickSort(array, 0, length - 1);
 
-    // Print the sorted array
-    NSLog(@"Array after sorting:");
-    printArray(array, length);
+//     // Print the sorted array
+//     NSLog(@"Array after sorting:");
+//     printArray(array, length);
     
-    // Create a string from the sorted array to display in the output label
-    NSMutableString *sortedString = [NSMutableString string];
-    for (int i = 0; i < length; i++) {
-        [sortedString appendFormat:@"%d", array[i]];
-        if (i < length - 1) {
-            [sortedString appendString:@", "]; // Add a comma between numbers
+//     // Create a string from the sorted array to display in the output label
+//     NSMutableString *sortedString = [NSMutableString string];
+//     for (int i = 0; i < length; i++) {
+//         [sortedString appendFormat:@"%d", array[i]];
+//         if (i < length - 1) {
+//             [sortedString appendString:@", "]; // Add a comma between numbers
+//         }
+//     }
+    
+//     // Set the output label to the sorted string
+//     [self.outputLabel setStringValue:sortedString];
+    
+//     // Free allocated memory
+//     free(array);
+// }
+
+- (void)updateTableWithTimings:(SortTimings)timings {
+    NSMutableArray *resultData = [NSMutableArray array];
+
+    // Iterate through the algorithms and data sizes to get the timing data
+    for (int algorithmIndex = 0; algorithmIndex < ALGORITHMS; algorithmIndex++) {
+        NSString *algorithmName;
+        if (algorithmIndex == 0) {
+            algorithmName = @"Quick Sort";
+        } else if (algorithmIndex == 1) {
+            algorithmName = @"Merge Sort";
+        } else {
+            algorithmName = @"Heap Sort";
         }
+        NSLog(@"Sorting completed yyyy"); 
+        // for (int sizeIndex = 0; sizeIndex < DATA_SIZES; sizeIndex++) {
+        //     // For each repetition, get the timing data
+        //     for (int repetitionIndex = 0; repetitionIndex < REPETITIONS; repetitionIndex++) {
+        //         double timeTaken = 0;
+        //         if (algorithmIndex == 0) {
+        //             timeTaken = timings.quickSort.times[0][sizeIndex][repetitionIndex];
+        //         } else if (algorithmIndex == 1) {
+        //             timeTaken = timings.mergeSort.times[0][sizeIndex][repetitionIndex];
+        //         } else {
+        //             timeTaken = timings.heapSort.times[0][sizeIndex][repetitionIndex];
+        //         }
+
+        //         // Create a SortResult object for each repetition and add it to the resultData array
+        //         SortResult *result = [[SortResult alloc] initWithAlgorithmName:algorithmName timeTaken:timeTaken];
+        //         [resultData addObject:result];
+        //     }
+        // }
     }
-    
-    // Set the output label to the sorted string
-    [self.outputLabel setStringValue:sortedString];
-    
-    // Free allocated memory
-    free(array);
+
+    // Bind the result data to the table view
+    [self.arrayController setContent:resultData];
 }
 
-- (void)updateTableWithTimings:(SortTimings)timings
-{
-    // Assume you have a table view setup in the UI to display the results
-    // Example: Update the table rows with data from timings
-    
-    // You can update the UI based on `timings` for each algorithm and data size
-    for (int algorithmIndex = 0; algorithmIndex < ALGORITHMS; algorithmIndex++)
-    {
-        for (int sizeIndex = 0; sizeIndex < DATA_SIZES; sizeIndex++)
-        {
-            // For example, you could populate the table view with algorithm name and time
-            NSString *algorithmName = @"";
-            if (algorithmIndex == 0) {
-                algorithmName = @"Quick Sort";
-            } else if (algorithmIndex == 1) {
-                algorithmName = @"Merge Sort";
-            } else {
-                algorithmName = @"Heap Sort";
-            }
-
-            for (int repetitionIndex = 0; repetitionIndex < REPETITIONS; repetitionIndex++)
-            {
-                double timeTaken = timings.quickSort.times[0][sizeIndex][repetitionIndex];  // Or use the corresponding algorithm and size
-                // Insert this time value into your table view (e.g., updating a cell for each algorithm, data size, and repetition)
-            }
-        }
-    }
-}
 
 @end
 

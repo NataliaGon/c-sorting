@@ -6,7 +6,7 @@
 #include "sort.h"
 
 SortTimings globalSortTimings; // Define the global variable
-// extern void updateResultsTable(const char *algorithm, int dataSize, double time_taken);
+//  extern void updateResultsTable(const char *algorithm, int dataSize, double time_taken);
 
 void terminal(const char *algorithmType, int dataSize, int *array)
 {
