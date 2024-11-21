@@ -13,6 +13,10 @@
 @property (nonatomic, strong) NSString *algorithmType;
 @property (nonatomic, strong) NSString *dataSize;
 @property (nonatomic) int *array;
+@property (strong) NSTableView *resultsTableView; // Table to display results
+@property (strong) NSArrayController *arrayController; // Controller to manage data
+- (void)updateTableWithTimings:(SortTimings)timings;
+
 @end
 
 @implementation AppDelegate
@@ -126,6 +130,35 @@
     generateArrayButton.layer.cornerRadius = 5.0; // Optional: round corners
     [generateArrayButton setAction:@selector(generateArray:)];
     [self.window.contentView addSubview:generateArrayButton];
+
+
+    // Table View to display results
+    self.resultsTableView = [[NSTableView alloc] initWithFrame:NSMakeRect(250, 550, 1800, 300)];
+    [self.resultsTableView setGridStyleMask:NSTableViewSolidHorizontalGridLineMask |
+                                         NSTableViewSolidVerticalGridLineMask];
+    [self.resultsTableView setRowHeight:30];
+    
+    // Add columns for each algorithm (Quick, Merge, Heap)
+    NSTableColumn *quickSortColumn = [[NSTableColumn alloc] initWithIdentifier:@"QuickSort"];
+    [quickSortColumn setTitle:@"QuickSort"];
+    [self.resultsTableView addTableColumn:quickSortColumn];
+    
+    NSTableColumn *mergeSortColumn = [[NSTableColumn alloc] initWithIdentifier:@"MergeSort"];
+    [mergeSortColumn setTitle:@"MergeSort"];
+    [self.resultsTableView addTableColumn:mergeSortColumn];
+    
+    NSTableColumn *heapSortColumn = [[NSTableColumn alloc] initWithIdentifier:@"HeapSort"];
+    [heapSortColumn setTitle:@"HeapSort"];
+    [self.resultsTableView addTableColumn:heapSortColumn];
+    
+    // Create an array controller to bind data to the table
+    self.arrayController = [[NSArrayController alloc] init];
+    [self.arrayController setContent:[NSMutableArray array]]; // Empty initially
+    
+    [self.resultsTableView bind:@"content" toObject:self.arrayController withKeyPath:@"arrangedObjects" options:nil];
+    
+    // Add table view to the window
+    [self.window.contentView addSubview:self.resultsTableView];
     
 }
 
@@ -207,6 +240,35 @@
     
     // Free allocated memory
     free(array);
+}
+
+- (void)updateTableWithTimings:(SortTimings)timings
+{
+    // Assume you have a table view setup in the UI to display the results
+    // Example: Update the table rows with data from timings
+    
+    // You can update the UI based on `timings` for each algorithm and data size
+    for (int algorithmIndex = 0; algorithmIndex < ALGORITHMS; algorithmIndex++)
+    {
+        for (int sizeIndex = 0; sizeIndex < DATA_SIZES; sizeIndex++)
+        {
+            // For example, you could populate the table view with algorithm name and time
+            NSString *algorithmName = @"";
+            if (algorithmIndex == 0) {
+                algorithmName = @"Quick Sort";
+            } else if (algorithmIndex == 1) {
+                algorithmName = @"Merge Sort";
+            } else {
+                algorithmName = @"Heap Sort";
+            }
+
+            for (int repetitionIndex = 0; repetitionIndex < REPETITIONS; repetitionIndex++)
+            {
+                double timeTaken = timings.quickSort.times[0][sizeIndex][repetitionIndex];  // Or use the corresponding algorithm and size
+                // Insert this time value into your table view (e.g., updating a cell for each algorithm, data size, and repetition)
+            }
+        }
+    }
 }
 
 @end
