@@ -9,6 +9,7 @@
 @property (nonatomic, strong) NSPopUpButton *dropdown;
 @property (nonatomic, strong) NSTextField *dropdownLabel; 
 @property (nonatomic, strong) NSTextField *dropdownLabelSize; 
+@property (strong) NSTextField *executionTimeLabel; 
 @property (nonatomic, strong) NSPopUpButton *dropdownSize;
 @property (nonatomic, strong) NSString *algorithmType;
 @property (nonatomic, strong) NSString *dataSize;
@@ -16,7 +17,7 @@
 @property (strong) NSTableView *resultsTableView; // Table to display results
 @property (strong) NSArrayController *arrayController; // Controller to manage data
 - (void)updateTableWithTimings:(SortTimings)timings;
-
+- (void)updateExecutionTime:(double)executionTime;
 @end
 
 @interface SortResult : NSObject
@@ -54,6 +55,21 @@
     return self;
 }
 
+- (void)initializeTableWithDefaults {
+    NSMutableArray *defaultData = [NSMutableArray array];
+
+    // Add default rows for each algorithm
+    NSArray *algorithms = @[@"Quick Sort", @"Merge Sort", @"Heap Sort"];
+    for (NSString *algorithm in algorithms) {
+        SortResult *result = [[SortResult alloc] initWithAlgorithmName:algorithm timeTaken:0.0]; // Default time = 0.0
+        [defaultData addObject:result];
+    }
+
+    // Set the default data to the array controller
+    [self.arrayController setContent:defaultData];
+}
+
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Window setup
     NSRect frame = NSMakeRect(0, 0, 2000, 600);
@@ -65,10 +81,13 @@
                                                    defer:NO];
     [self.window setTitle:@"Sorting Algorithm Visualizer"];
     [self.window makeKeyAndOrderFront:nil];
+
+
     
     // Text field for input
     self.inputTextField = [[NSTextField alloc] initWithFrame:NSMakeRect(20, 120, 360, 30)];
     [self.window.contentView addSubview:self.inputTextField];
+  
     
     // Button to trigger sorting
     NSButton *sortButton = [[NSButton alloc] initWithFrame:NSMakeRect(150, 70, 100, 30)];
@@ -154,34 +173,67 @@
     [generateArrayButton setAction:@selector(generateArray:)];
     [self.window.contentView addSubview:generateArrayButton];
 
+    // Create a new NSTextField for the execution time label
+    self.executionTimeLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(100, 100, 300, 30)];
+    
+    // Set the text field properties (e.g., read-only, no border)
+    [self.executionTimeLabel setEditable:NO];
+    [self.executionTimeLabel setBezeled:NO];
+    [self.executionTimeLabel setDrawsBackground:NO];
+    
+    // Set initial text (just an example)
+    [self.executionTimeLabel setStringValue:[NSString stringWithFormat:@"Execution Time: %.4f seconds", executionTime]];
+    
+    // Add the text field to the window's content view
+    [self.window.contentView addSubview:self.executionTimeLabel];
 
-    // Table View to display results
-    self.resultsTableView = [[NSTableView alloc] initWithFrame:NSMakeRect(250, 550, 1800, 300)];
-    [self.resultsTableView setGridStyleMask:NSTableViewSolidHorizontalGridLineMask |
-                                         NSTableViewSolidVerticalGridLineMask];
-    [self.resultsTableView setRowHeight:30];
     
-    // Add columns for each algorithm (Quick, Merge, Heap)
-    NSTableColumn *quickSortColumn = [[NSTableColumn alloc] initWithIdentifier:@"QuickSort"];
-    [quickSortColumn setTitle:@"QuickSort"];
-    [self.resultsTableView addTableColumn:quickSortColumn];
-    
-    NSTableColumn *mergeSortColumn = [[NSTableColumn alloc] initWithIdentifier:@"MergeSort"];
-    [mergeSortColumn setTitle:@"MergeSort"];
-    [self.resultsTableView addTableColumn:mergeSortColumn];
-    
-    NSTableColumn *heapSortColumn = [[NSTableColumn alloc] initWithIdentifier:@"HeapSort"];
-    [heapSortColumn setTitle:@"HeapSort"];
-    [self.resultsTableView addTableColumn:heapSortColumn];
-    
-    // Create an array controller to bind data to the table
-    self.arrayController = [[NSArrayController alloc] init];
-    [self.arrayController setContent:[NSMutableArray array]]; // Empty initially
-    
-    [self.resultsTableView bind:@"content" toObject:self.arrayController withKeyPath:@"arrangedObjects" options:nil];
-    
-    // Add table view to the window
-    [self.window.contentView addSubview:self.resultsTableView];
+     // Table View to display results
+self.resultsTableView = [[NSTableView alloc] initWithFrame:NSMakeRect(250, 350, 1800, 300)];
+[self.resultsTableView setGridStyleMask:NSTableViewSolidHorizontalGridLineMask | NSTableViewSolidVerticalGridLineMask];
+[self.resultsTableView setRowHeight:30];
+
+// Create and configure Algorithm Name column
+NSTableColumn *algorithmColumn = [[NSTableColumn alloc] initWithIdentifier:@"algorithmName"];
+[algorithmColumn setTitle:@"Algorithm"];
+[algorithmColumn setWidth:300];
+[self.resultsTableView addTableColumn:algorithmColumn];
+
+// Create and configure Time Taken column
+NSTableColumn *timeColumn = [[NSTableColumn alloc] initWithIdentifier:@"timeTaken"];
+[timeColumn setTitle:@"Time (ms)"];
+[timeColumn setWidth:150];
+[self.resultsTableView addTableColumn:timeColumn];
+
+// Add columns for each algorithm (Quick, Merge, Heap)
+NSTableColumn *quickSortColumn = [[NSTableColumn alloc] initWithIdentifier:@"QuickSort"];
+[quickSortColumn setTitle:@"QuickSort"];
+[self.resultsTableView addTableColumn:quickSortColumn];
+
+NSTableColumn *mergeSortColumn = [[NSTableColumn alloc] initWithIdentifier:@"MergeSort"];
+[mergeSortColumn setTitle:@"MergeSort"];
+[self.resultsTableView addTableColumn:mergeSortColumn];
+
+NSTableColumn *heapSortColumn = [[NSTableColumn alloc] initWithIdentifier:@"HeapSort"];
+[heapSortColumn setTitle:@"HeapSort"];
+[self.resultsTableView addTableColumn:heapSortColumn];
+
+// Create an array controller to bind data to the table
+self.arrayController = [[NSArrayController alloc] init];
+[self.arrayController setContent:[NSMutableArray array]]; // Empty initially
+
+[self.resultsTableView bind:@"content" toObject:self.arrayController withKeyPath:@"arrangedObjects" options:nil];
+
+// Create the scroll view and add the table view to it
+NSScrollView *scrollView = [[NSScrollView alloc] initWithFrame:NSMakeRect(250, 350, 1800, 300)];
+[scrollView setDocumentView:self.resultsTableView];
+[scrollView setHasVerticalScroller:YES]; // Add a vertical scroller
+[scrollView setHasHorizontalScroller:YES]; // Optional: Add a horizontal scroller if needed
+[self.window.contentView addSubview:scrollView];
+
+// Initialize table with default data
+[self initializeTableWithDefaults];
+
     
 }
 
@@ -223,49 +275,56 @@
 - (void)sortGenerated:(id)sender{
     terminal([self.algorithmType UTF8String], [self.dataSize intValue], self.array); //convert to C string from Object-C string
     // After sorting, update the table with the timings
-   [self updateTableWithTimings:globalSortTimings];
+   //[self updateTableWithTimings:globalSortTimings];
+
+    [self updateExecutionTime:executionTime]; // Call the update method with the execution time
 }
 
-// - (void)sortQuick:(id)sender {
-//     // Get the text from the input field
-//     NSString *inputText = [self.inputTextField stringValue];
-    
-//     // Split the string into an array of numbers
-//     NSArray *stringArray = [inputText componentsSeparatedByString:@","];
-//     int length = (int)[stringArray count];
-//     int *array = malloc(length * sizeof(int));
-    
-//     // Convert strings to integers
-//     for (int i = 0; i < length; i++) {
-//         array[i] = [stringArray[i] intValue];
-//     }
+- (void)updateExecutionTime:(double)executionTime {
+    // Update the text field with the new execution time
+    [self.executionTimeLabel setStringValue:[NSString stringWithFormat:@"Execution Time: %.4f seconds", executionTime]];
+}
 
-//     // Print the array before sorting
-//     NSLog(@"Array before sorting:");
-//     printArray(array, length);
+- (void)sortQuick:(id)sender {
+    // Get the text from the input field
+    NSString *inputText = [self.inputTextField stringValue];
+    
+    // Split the string into an array of numbers
+    NSArray *stringArray = [inputText componentsSeparatedByString:@","];
+    int length = (int)[stringArray count];
+    int *array = malloc(length * sizeof(int));
+    
+    // Convert strings to integers
+    for (int i = 0; i < length; i++) {
+        array[i] = [stringArray[i] intValue];
+    }
 
-//     // Call quickSort on the array
-//     quickSort(array, 0, length - 1);
+    // Print the array before sorting
+    NSLog(@"Array before sorting:");
+    printArray(array, length);
 
-//     // Print the sorted array
-//     NSLog(@"Array after sorting:");
-//     printArray(array, length);
+    // Call quickSort on the array
+    quickSort(array, 0, length - 1);
+
+    // Print the sorted array
+    NSLog(@"Array after sorting:");
+    printArray(array, length);
     
-//     // Create a string from the sorted array to display in the output label
-//     NSMutableString *sortedString = [NSMutableString string];
-//     for (int i = 0; i < length; i++) {
-//         [sortedString appendFormat:@"%d", array[i]];
-//         if (i < length - 1) {
-//             [sortedString appendString:@", "]; // Add a comma between numbers
-//         }
-//     }
+    // Create a string from the sorted array to display in the output label
+    NSMutableString *sortedString = [NSMutableString string];
+    for (int i = 0; i < length; i++) {
+        [sortedString appendFormat:@"%d", array[i]];
+        if (i < length - 1) {
+            [sortedString appendString:@", "]; // Add a comma between numbers
+        }
+    }
     
-//     // Set the output label to the sorted string
-//     [self.outputLabel setStringValue:sortedString];
+    // Set the output label to the sorted string
+    [self.outputLabel setStringValue:sortedString];
     
-//     // Free allocated memory
-//     free(array);
-// }
+    // Free allocated memory
+    free(array);
+}
 
 - (void)updateTableWithTimings:(SortTimings)timings {
     NSMutableArray *resultData = [NSMutableArray array];
@@ -281,23 +340,23 @@
             algorithmName = @"Heap Sort";
         }
         NSLog(@"Sorting completed yyyy"); 
-        // for (int sizeIndex = 0; sizeIndex < DATA_SIZES; sizeIndex++) {
-        //     // For each repetition, get the timing data
-        //     for (int repetitionIndex = 0; repetitionIndex < REPETITIONS; repetitionIndex++) {
-        //         double timeTaken = 0;
-        //         if (algorithmIndex == 0) {
-        //             timeTaken = timings.quickSort.times[0][sizeIndex][repetitionIndex];
-        //         } else if (algorithmIndex == 1) {
-        //             timeTaken = timings.mergeSort.times[0][sizeIndex][repetitionIndex];
-        //         } else {
-        //             timeTaken = timings.heapSort.times[0][sizeIndex][repetitionIndex];
-        //         }
+        for (int sizeIndex = 0; sizeIndex < DATA_SIZES; sizeIndex++) {
+            // For each repetition, get the timing data
+            for (int repetitionIndex = 0; repetitionIndex < REPETITIONS; repetitionIndex++) {
+                double timeTaken = 0;
+                if (algorithmIndex == 0) {
+                    timeTaken = timings.quickSort.times[0][sizeIndex][repetitionIndex];
+                } else if (algorithmIndex == 1) {
+                    timeTaken = timings.mergeSort.times[0][sizeIndex][repetitionIndex];
+                } else {
+                    timeTaken = timings.heapSort.times[0][sizeIndex][repetitionIndex];
+                }
 
-        //         // Create a SortResult object for each repetition and add it to the resultData array
-        //         SortResult *result = [[SortResult alloc] initWithAlgorithmName:algorithmName timeTaken:timeTaken];
-        //         [resultData addObject:result];
-        //     }
-        // }
+                // Create a SortResult object for each repetition and add it to the resultData array
+                SortResult *result = [[SortResult alloc] initWithAlgorithmName:algorithmName timeTaken:timeTaken];
+                [resultData addObject:result];
+            }
+        }
     }
 
     // Bind the result data to the table view

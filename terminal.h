@@ -18,6 +18,8 @@ typedef struct
     AlgorithmTimings heapSort;
 } SortTimings;
 
+extern double executionTime;
+
 extern SortTimings globalSortTimings; // Declare the global variable
 
 void terminal(const char *algorithmType, int dataSize, int *array);

@@ -7,7 +7,7 @@
 
 SortTimings globalSortTimings; // Define the global variable
 //  extern void updateResultsTable(const char *algorithm, int dataSize, double time_taken);
-
+double executionTime;
 void terminal(const char *algorithmType, int dataSize, int *array)
 {
     printf("The algorithmType is: %s\n, %d\n", algorithmType, dataSize);
@@ -45,21 +45,21 @@ void terminal(const char *algorithmType, int dataSize, int *array)
         clock_t end = clock();
         double time_taken = ((double)end - start) / CLOCKS_PER_SEC; // in seconds
         printf("Time taken by the algorithm: %f seconds\n", time_taken);
-
+        executionTime = time_taken;
         // Save time into SortTimings structure
-        static int repetitionIndex = 0; // Keeps track of the current repetition
-        if (dataSize == 100)
-        {
-            globalSortTimings.quickSort.times[0][0][repetitionIndex] = time_taken; // 100 elements
-        }
-        else if (dataSize == 1000)
-        {
-            globalSortTimings.quickSort.times[0][1][repetitionIndex] = time_taken; // 1000 elements
-        }
-        else if (dataSize == 10000)
-        {
-            globalSortTimings.quickSort.times[0][2][repetitionIndex] = time_taken; // 10000 elements
-        }
+        // static int repetitionIndex = 0; // Keeps track of the current repetition
+        // if (dataSize == 100)
+        // {
+        //     globalSortTimings.quickSort.times[0][0][repetitionIndex] = time_taken; // 100 elements
+        // }
+        // else if (dataSize == 1000)
+        // {
+        //     globalSortTimings.quickSort.times[0][1][repetitionIndex] = time_taken; // 1000 elements
+        // }
+        // else if (dataSize == 10000)
+        // {
+        //     globalSortTimings.quickSort.times[0][2][repetitionIndex] = time_taken; // 10000 elements
+        // }
     }
     if (strcmp(algorithmType, "Heap") == 0)
     {
