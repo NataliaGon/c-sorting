@@ -6,7 +6,7 @@
 #include "sort.h"
 
 SortTimings globalSortTimings; // Define the global variable
-//  extern void updateResultsTable(const char *algorithm, int dataSize, double time_taken);
+
 double executionTime;
 void terminal(const char *algorithmType, int dataSize, int *array)
 {
@@ -30,40 +30,34 @@ void terminal(const char *algorithmType, int dataSize, int *array)
     {
 
         printf("Merge");
-        // mergeSort();
+        printf("Merge Sort\n");
+        clock_t start = clock();
+        mergeSort(arrayCopy, 0, dataSize - 1); // Call mergeSort
+        clock_t end = clock();
+        double time_taken = ((double)end - start) / CLOCKS_PER_SEC; // in seconds
+        printf("Time taken by Merge Sort: %f seconds\n", time_taken);
+        executionTime = time_taken;
     }
     if (strcmp(algorithmType, "Quick") == 0)
     {
         printf("Yep I am here\n");
-        // printf("Array received in terminal function:\n");
-        // for (int i = 0; i < dataSize; i++)
-        // {
-        //     printf("%d ", arrayCopy[i]); // Print the array to check if values are as expected
-        // }
+
         clock_t start = clock();
         quickSort(arrayCopy, 0, dataSize - 1); // replace with dataSize
         clock_t end = clock();
         double time_taken = ((double)end - start) / CLOCKS_PER_SEC; // in seconds
         printf("Time taken by the algorithm: %f seconds\n", time_taken);
         executionTime = time_taken;
-        // Save time into SortTimings structure
-        // static int repetitionIndex = 0; // Keeps track of the current repetition
-        // if (dataSize == 100)
-        // {
-        //     globalSortTimings.quickSort.times[0][0][repetitionIndex] = time_taken; // 100 elements
-        // }
-        // else if (dataSize == 1000)
-        // {
-        //     globalSortTimings.quickSort.times[0][1][repetitionIndex] = time_taken; // 1000 elements
-        // }
-        // else if (dataSize == 10000)
-        // {
-        //     globalSortTimings.quickSort.times[0][2][repetitionIndex] = time_taken; // 10000 elements
-        // }
     }
     if (strcmp(algorithmType, "Heap") == 0)
     {
-        // heapSort();
+        printf("Heap Sort\n");
+        clock_t start = clock();
+        heapSort(arrayCopy, dataSize); // Call heapSort
+        clock_t end = clock();
+        double time_taken = ((double)end - start) / CLOCKS_PER_SEC; // in seconds
+        printf("Time taken by Heap Sort: %f seconds\n", time_taken);
+        executionTime = time_taken;
     }
 
     // Free memory
