@@ -69,27 +69,27 @@
 
     
     // Text field for input
-    // self.inputTextField = [[NSTextField alloc] initWithFrame:NSMakeRect(20, 120, 360, 30)];
-    // [self.window.contentView addSubview:self.inputTextField];
+    self.inputTextField = [[NSTextField alloc] initWithFrame:NSMakeRect(20, 120, 360, 30)];
+    [self.window.contentView addSubview:self.inputTextField];
   
     
-    // Button to trigger sorting
-    // NSButton *sortButton = [[NSButton alloc] initWithFrame:NSMakeRect(150, 70, 100, 30)];
-    // [sortButton setTitle:@"Sort"];
-    // [sortButton setButtonType:NSButtonTypeMomentaryPushIn];
-    // [sortButton setBezelStyle:NSBezelStyleRounded];
-    // [sortButton setTarget:self];
-    // [sortButton setAction:@selector(sortQuick:)];
-    // [self.window.contentView addSubview:sortButton];
+    //  Button to trigger sorting
+    NSButton *sortButton = [[NSButton alloc] initWithFrame:NSMakeRect(150, 70, 100, 30)];
+    [sortButton setTitle:@"Sort"];
+    [sortButton setButtonType:NSButtonTypeMomentaryPushIn];
+    [sortButton setBezelStyle:NSBezelStyleRounded];
+    [sortButton setTarget:self];
+    [sortButton setAction:@selector(sortQuick:)];
+    [self.window.contentView addSubview:sortButton];
     
-    // // Label for output
-    // self.outputLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(20, 30, 360, 30)];
-    // [self.outputLabel setBezeled:NO];
-    // [self.outputLabel setDrawsBackground:NO];
-    // [self.outputLabel setEditable:NO];
-    // [self.outputLabel setSelectable:NO];
-    // [self.outputLabel setStringValue:@""]; // Initially empty
-    // [self.window.contentView addSubview:self.outputLabel];
+    // Label for output
+    self.outputLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(20, 30, 360, 30)];
+    [self.outputLabel setBezeled:NO];
+    [self.outputLabel setDrawsBackground:NO];
+    [self.outputLabel setEditable:NO];
+    [self.outputLabel setSelectable:NO];
+    [self.outputLabel setStringValue:@""]; // Initially empty
+    [self.window.contentView addSubview:self.outputLabel];
 
     // Title above dropdown
     self.dropdownLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(400, 240, 200, 30)];
@@ -157,7 +157,7 @@
     [self.window.contentView addSubview:generateArrayButton];
 
     // Execution time label
-    self.executionTimeLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(100, 100, 300, 30)];
+    self.executionTimeLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(400, 100, 300, 30)];
     [self.executionTimeLabel setEditable:NO];
     [self.executionTimeLabel setBezeled:NO];
     [self.executionTimeLabel setDrawsBackground:NO];
@@ -212,48 +212,47 @@
     [self.executionTimeLabel setStringValue:[NSString stringWithFormat:@"Execution Time: %f seconds", executionTime]];
 }
 
-// - (void)sortQuick:(id)sender {
-//     // Get the text from the input field
-//     NSString *inputText = [self.inputTextField stringValue];
+- (void)sortQuick:(id)sender {
+    // Get the text from the input field
+    NSString *inputText = [self.inputTextField stringValue];
     
-//     // Split the string into an array of numbers
-//     NSArray *stringArray = [inputText componentsSeparatedByString:@","];
-//     int length = (int)[stringArray count];
-//     int *array = malloc(length * sizeof(int));
+    // Split the string into an array of numbers
+    NSArray *stringArray = [inputText componentsSeparatedByString:@","];
+    int length = (int)[stringArray count];
+    int *array = malloc(length * sizeof(int));
     
-//     // Convert strings to integers
-//     for (int i = 0; i < length; i++) {
-//         array[i] = [stringArray[i] intValue];
-//     }
+    // Convert strings to integers
+    for (int i = 0; i < length; i++) {
+        array[i] = [stringArray[i] intValue];
+    }
 
-//     // Print the array before sorting
-//     NSLog(@"Array before sorting:");
-//     printArray(array, length);
+    // Print the array before sorting
+    NSLog(@"Array before sorting:");
+    printArray(array, length);
 
-//     // Call quickSort on the array
-//     quickSort(array, 0, length - 1);
+    // Call quickSort on the array
+    mergeSort(array, 0, length-1);
+   // heapSort(array, length);
 
-//     // Print the sorted array
-//     NSLog(@"Array after sorting:");
-//     printArray(array, length);
+    // Print the sorted array
+    NSLog(@"Array after sorting:");
+    printArray(array, length);
     
-//     // Create a string from the sorted array to display in the output label
-//     NSMutableString *sortedString = [NSMutableString string];
-//     for (int i = 0; i < length; i++) {
-//         [sortedString appendFormat:@"%d", array[i]];
-//         if (i < length - 1) {
-//             [sortedString appendString:@", "]; // Add a comma between numbers
-//         }
-//     }
+    // Create a string from the sorted array to display in the output label
+    NSMutableString *sortedString = [NSMutableString string];
+    for (int i = 0; i < length; i++) {
+        [sortedString appendFormat:@"%d", array[i]];
+        if (i < length - 1) {
+            [sortedString appendString:@", "]; // Add a comma between numbers
+        }
+    }
     
-//     // Set the output label to the sorted string
-//     [self.outputLabel setStringValue:sortedString];
+    // Set the output label to the sorted string
+    [self.outputLabel setStringValue:sortedString];
     
-//     // Free allocated memory
-//     free(array);
-// }
-
-
+    // Free allocated memory
+    free(array);
+}
 
 @end
 

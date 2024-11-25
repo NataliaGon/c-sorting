@@ -56,27 +56,3 @@ void mergeSort(int arr[], int left, int right)
         merge(arr, left, mid, right);
     }
 }
-
-// void printArray(int arr[], int size)
-// {
-//     for (int i = 0; i < size; i++)
-//     {
-//         printf("%d ", arr[i]);
-//     }
-//     printf("\n");
-// }
-
-// int main()
-// {
-//     int arr[] = {12, 11, 13, 5, 6, 7};
-//     int n = sizeof(arr) / sizeof(arr[0]);
-
-//     printf("Original array: \n");
-//     printArray(arr, n);
-
-//     mergeSort(arr, 0, n - 1);
-
-//     printf("Sorted array: \n");
-//     printArray(arr, n);
-//     return 0;
-// }

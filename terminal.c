@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <time.h>   // For time
+#include <time.h>
 #include <stdlib.h> // For malloc
 #include "terminal.h"
 #include "sort.h"
@@ -53,9 +53,9 @@ void terminal(const char *algorithmType, int dataSize, int *array)
     {
         printf("Heap Sort\n");
         clock_t start = clock();
-        heapSort(arrayCopy, dataSize); // Call heapSort
+        heapSort(arrayCopy, dataSize);
         clock_t end = clock();
-        double time_taken = ((double)end - start) / CLOCKS_PER_SEC; // in seconds
+        double time_taken = ((double)end - start) / CLOCKS_PER_SEC;
         printf("Time taken by Heap Sort: %f seconds\n", time_taken);
         executionTime = time_taken;
     }
