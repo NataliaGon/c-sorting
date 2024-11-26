@@ -6,6 +6,7 @@
 @property (strong) NSWindow *window;
 @property (strong) NSTextField *inputTextField;
 @property (strong) NSTextField *outputLabel;
+@property (strong) NSTextField *arrayWarning;
 @property (nonatomic, strong) NSPopUpButton *dropdown;
 @property (nonatomic, strong) NSTextField *dropdownLabel; 
 @property (nonatomic, strong) NSTextField *dropdownLabelSize; 
@@ -86,6 +87,15 @@
     [self.outputLabel setSelectable:NO];
     [self.outputLabel setStringValue:@""]; // Initially empty
     [self.window.contentView addSubview:self.outputLabel];
+
+      // Label not generated array
+    self.arrayWarning = [[NSTextField alloc] initWithFrame:NSMakeRect(20, 30, 360, 30)];
+    [self.arrayWarning setBezeled:NO];
+    [self.arrayWarning setDrawsBackground:NO];
+    [self.arrayWarning setEditable:NO];
+    [self.arrayWarning setSelectable:NO];
+    [self.arrayWarning setStringValue:@""]; // Initially empty
+    [self.window.contentView addSubview:self.arrayWarning];
 
     // Title above dropdown
     self.dropdownLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(400, 240, 200, 30)];
@@ -173,6 +183,8 @@
 
 -(void)generateArray:(id)sender{
    // First, check if arraySize is set properly (e.g., from the dropdown)
+    [self.arrayWarning setStringValue: @"Array is generating. Please wait."];
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate date]];  // Allow UI updates with notification
     NSInteger size = [self.dataSize intValue]; // Get the array size as an integer
     
     // Allocate memory for the array based on the size
@@ -188,7 +200,7 @@
     for (int i = 0; i < size; i++) {
         self.array[i] = rand() % 1000000; // Random numbers between 0 and 999999
     }
-    
+    [self.arrayWarning setStringValue: @"Array is generated"];
     // Optional: Print the generated array to check if it's correct
     NSLog(@"Generated array:");
     for (int i = 0; i < size; i++) {
@@ -197,6 +209,11 @@
 }
 
 - (void)sortGenerated:(id)sender{
+    if (self.array == NULL) {
+        [self.arrayWarning setStringValue: @"Array is not generated yet."];
+        return;
+    }
+      
     terminal([self.algorithmType UTF8String], [self.dataSize intValue], self.array); //convert to C string from Object-C string
 
    [self updateExecutionTime:executionTime]; // Call the update method with the execution time
