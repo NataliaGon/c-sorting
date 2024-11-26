@@ -51,11 +51,10 @@
     return self;
 }
 
-
-
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     // Window setup
     double executionTime = 0.0;
+    int swapCounter=0;
     NSRect frame = NSMakeRect(0, 0, 2000, 600);
     self.window = [[NSWindow alloc] initWithContentRect:frame
                                                styleMask:(NSWindowStyleMaskTitled |
@@ -66,13 +65,10 @@
     [self.window setTitle:@"Sorting Algorithm Visualizer"];
     [self.window makeKeyAndOrderFront:nil];
 
-
-    
     // Text field for input
     self.inputTextField = [[NSTextField alloc] initWithFrame:NSMakeRect(20, 120, 360, 30)];
     [self.window.contentView addSubview:self.inputTextField];
   
-    
     //  Button to trigger sorting
     NSButton *sortButton = [[NSButton alloc] initWithFrame:NSMakeRect(150, 70, 100, 30)];
     [sortButton setTitle:@"Sort"];
@@ -209,7 +205,7 @@
 - (void)updateExecutionTime:(double)executionTime {
     // Update the text field with the new execution time
       NSLog(@"Object-C execution time: %f ", executionTime);
-    [self.executionTimeLabel setStringValue:[NSString stringWithFormat:@"Execution Time: %f seconds", executionTime]];
+    [self.executionTimeLabel setStringValue:[NSString stringWithFormat:@"Execution Time: %f seconds and made %d swaps", executionTime, swapCounter]];
 }
 
 - (void)sortQuick:(id)sender {

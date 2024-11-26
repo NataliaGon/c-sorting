@@ -6,5 +6,6 @@ int partition(int *array, int low, int high);
 void printArray(int *array, int size);
 void heapSort(int arr[], int n);
 void mergeSort(int arr[], int left, int right);
+extern int swapCounter;
 
 #endif // QUICK_SORT_H

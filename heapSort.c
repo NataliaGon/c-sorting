@@ -6,6 +6,7 @@ void swap(int *a, int *b)
     int temp = *a;
     *a = *b;
     *b = temp;
+    swapCounter++;
 }
 
 // Heapify a subtree rooted at index i, where n is the size of the heap
@@ -36,6 +37,8 @@ void heapify(int arr[], int n, int i)
 // Main function to perform heap sort
 void heapSort(int arr[], int n)
 {
+
+    swapCounter = 0;
     // Build the max heap (rearrange the array)
     for (int i = n / 2 - 1; i >= 0; i--)
     {

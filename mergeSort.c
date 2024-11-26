@@ -27,6 +27,7 @@ void merge(int arr[], int left, int mid, int right)
             j++;
         }
         k++;
+        swapCounter++;
     }
 
     while (i < n1)
@@ -34,6 +35,7 @@ void merge(int arr[], int left, int mid, int right)
         arr[k] = L[i];
         i++;
         k++;
+        swapCounter++;
     }
 
     while (j < n2)
@@ -41,11 +43,13 @@ void merge(int arr[], int left, int mid, int right)
         arr[k] = R[j];
         j++;
         k++;
+        swapCounter++;
     }
 }
 
 void mergeSort(int arr[], int left, int right)
 {
+    swapCounter = 0;
     if (left < right)
     {
         int mid = left + (right - left) / 2;
