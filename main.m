@@ -10,11 +10,15 @@
 @property (nonatomic, strong) NSPopUpButton *dropdown;
 @property (nonatomic, strong) NSTextField *dropdownLabel; 
 @property (nonatomic, strong) NSTextField *dropdownLabelSize; 
+@property (nonatomic, strong) NSTextField *dropdownLabelDataType;
 @property (strong) NSTextField *executionTimeLabel; 
 @property (nonatomic, strong) NSPopUpButton *dropdownSize;
+@property (nonatomic, strong) NSPopUpButton *dropdownDataType;
 @property (nonatomic, strong) NSString *algorithmType;
+@property (nonatomic, strong) NSString *dataType;
 @property (nonatomic, strong) NSString *dataSize;
 @property (nonatomic) int *array;
+@property (nonatomic) double *arrayReal;
 
 @end
 
@@ -88,7 +92,7 @@
     [self.outputLabel setStringValue:@""]; // Initially empty
     [self.window.contentView addSubview:self.outputLabel];
 
-      // Label not generated array
+      // Label Warning-Notificaiton
     self.arrayWarning = [[NSTextField alloc] initWithFrame:NSMakeRect(20, 30, 360, 30)];
     [self.arrayWarning setBezeled:NO];
     [self.arrayWarning setDrawsBackground:NO];
@@ -97,13 +101,30 @@
     [self.arrayWarning setStringValue:@""]; // Initially empty
     [self.window.contentView addSubview:self.arrayWarning];
 
+      // Title above dropdown
+    self.dropdownLabelDataType = [[NSTextField alloc] initWithFrame:NSMakeRect(100, 440, 200, 30)];
+    [self.dropdownLabelDataType setBezeled:NO];
+    [self.dropdownLabelDataType setDrawsBackground:NO];
+    [self.dropdownLabelDataType setEditable:NO];
+    [self.dropdownLabelDataType setSelectable:NO];
+    [self.dropdownLabelDataType setStringValue:@"Step1. Choose data type:"];
+    [self.window.contentView addSubview:self.dropdownLabelDataType];
+
+    // Create the dropdown menu
+    self.dropdownDataType = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(100, 400, 200, 30) pullsDown:NO];
+    [self.dropdownDataType addItemWithTitle:@"interger"];
+    [self.dropdownDataType addItemWithTitle:@"real"];
+    [self.dropdownDataType setTarget:self];
+    [self.dropdownDataType setAction:@selector(dropdownChangedDataType:)];
+    [self.window.contentView addSubview:self.dropdownDataType];
+
     // Title above dropdown
     self.dropdownLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(400, 240, 200, 30)];
     [self.dropdownLabel setBezeled:NO];
     [self.dropdownLabel setDrawsBackground:NO];
     [self.dropdownLabel setEditable:NO];
     [self.dropdownLabel setSelectable:NO];
-    [self.dropdownLabel setStringValue:@"Choose sort type:"];
+    [self.dropdownLabel setStringValue:@"Step3.Choose sort type:"];
     [self.window.contentView addSubview:self.dropdownLabel];
 
     // Create the dropdown menu
@@ -121,7 +142,7 @@
     [self.dropdownLabelSize setDrawsBackground:NO];
     [self.dropdownLabelSize setEditable:NO];
     [self.dropdownLabelSize setSelectable:NO];
-    [self.dropdownLabelSize setStringValue:@"Step1. Choose data size:"];
+    [self.dropdownLabelSize setStringValue:@"Step2. Choose data size:"];
     [self.window.contentView addSubview:self.dropdownLabelSize];
 
     // Create the dropdown menu
@@ -180,9 +201,14 @@
     self.dataSize = [self.dropdownSize titleOfSelectedItem];
     NSLog(@"User selected: %@", self.dataSize);
 }
-
+- (void)dropdownChangedDataType:(id)sender {
+    self.dataType = [self.dropdownDataType titleOfSelectedItem];
+    NSLog(@"Data type: %@", self.dataType);
+}
 -(void)generateArray:(id)sender{
    // First, check if arraySize is set properly (e.g., from the dropdown)
+    NSLog(@"Data type in generate array: %@", self.dataType);
+       //add here data type
     [self.arrayWarning setStringValue: @"Array is generating. Please wait."];
     [[NSRunLoop currentRunLoop] runUntilDate:[NSDate date]];  // Allow UI updates with notification
     NSInteger size = [self.dataSize intValue]; // Get the array size as an integer
@@ -209,6 +235,7 @@
 }
 
 - (void)sortGenerated:(id)sender{
+    //add here data type
     if (self.array == NULL) {
         [self.arrayWarning setStringValue: @"Array is not generated yet."];
         return;
