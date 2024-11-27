@@ -27,17 +27,18 @@
 @property (nonatomic, strong) NSString *algorithmName;
 @property (nonatomic) double timeTaken;
 
-- (instancetype)initWithAlgorithmName:(NSString *)algorithmName timeTaken:(double)timeTaken;
+- (instancetype)initWithAlgorithmName:(NSString *)algorithmName timeTaken:(double)timeTaken; //Do we need?
 
 @end
 
 @implementation SortResult
 
-- (instancetype)initWithAlgorithmName:(NSString *)algorithmName timeTaken:(double)timeTaken {
+- (instancetype)initWithAlgorithmName:(NSString *)algorithmName timeTaken:(double)timeTaken { //Do we need?
     self = [super init];
     if (self) {
         _algorithmName = algorithmName;
         _timeTaken = timeTaken;
+  
     }
     return self;
 }
@@ -52,6 +53,7 @@
     if (self) {
         _algorithmType = @"Merge";  
         _dataSize = @"100"; 
+        _dataType=@"integer";
     }
     return self;
 }
@@ -112,7 +114,7 @@
 
     // Create the dropdown menu
     self.dropdownDataType = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(100, 400, 200, 30) pullsDown:NO];
-    [self.dropdownDataType addItemWithTitle:@"interger"];
+    [self.dropdownDataType addItemWithTitle:@"integer"];
     [self.dropdownDataType addItemWithTitle:@"real"];
     [self.dropdownDataType setTarget:self];
     [self.dropdownDataType setAction:@selector(dropdownChangedDataType:)];
@@ -208,42 +210,81 @@
 -(void)generateArray:(id)sender{
    // First, check if arraySize is set properly (e.g., from the dropdown)
     NSLog(@"Data type in generate array: %@", self.dataType);
-       //add here data type
+  
     [self.arrayWarning setStringValue: @"Array is generating. Please wait."];
     [[NSRunLoop currentRunLoop] runUntilDate:[NSDate date]];  // Allow UI updates with notification
     NSInteger size = [self.dataSize intValue]; // Get the array size as an integer
-    
+   
+    if([self.dataType isEqualToString:@"integer"]){
     // Allocate memory for the array based on the size
     self.array = malloc(size * sizeof(int)); // Allocate space for 'size' integers
     
-    // Check if allocation succeeded
     if (self.array == NULL) {
+        NSLog(@"Memory allocation failed.");
+        return;
+    }
+    
+    for (int i = 0; i < size; i++) {
+        self.array[i] = rand() % 1000000; 
+    }
+    [self.arrayWarning setStringValue: @"Array is generated"];
+    NSLog(@"Generated array:");
+    for (int i = 0; i < size; i++) {
+        NSLog(@"%d", self.array[i]);
+    }
+
+    }
+    if([self.dataType isEqualToString:@"real"]){
+        NSLog(@"To generate real");
+         self.arrayReal = malloc(size * sizeof(double));
+
+    if (self.arrayReal == NULL) {
         NSLog(@"Memory allocation failed.");
         return;
     }
     
     // Populate the array with random values
     for (int i = 0; i < size; i++) {
-        self.array[i] = rand() % 1000000; // Random numbers between 0 and 999999
+       double randomNum = (double)(rand() % 1000000) / 1000.0;  // Random float value
+            if (rand() % 2 == 0) {
+                randomNum = -randomNum;  // 50% chance to make it negative
+            }
+            self.arrayReal[i] = randomNum; 
     }
     [self.arrayWarning setStringValue: @"Array is generated"];
     // Optional: Print the generated array to check if it's correct
     NSLog(@"Generated array:");
     for (int i = 0; i < size; i++) {
-        NSLog(@"%d", self.array[i]);
+        NSLog(@"%f", self.arrayReal[i]);
     }
+    }
+   
 }
 
 - (void)sortGenerated:(id)sender{
     //add here data type
-    if (self.array == NULL) {
+     if([self.dataType isEqualToString:@"real"]){
+         if (self.arrayReal == NULL) {
         [self.arrayWarning setStringValue: @"Array is not generated yet."];
         return;
-    }
+        }
       
-    terminal([self.algorithmType UTF8String], [self.dataSize intValue], self.array); //convert to C string from Object-C string
+        terminal_float([self.algorithmType UTF8String], [self.dataSize intValue], self.arrayReal); //convert to C string from Object-C string
 
-   [self updateExecutionTime:executionTime]; // Call the update method with the execution time
+        [self updateExecutionTime:executionTime]; // Call the update method with the execution time
+
+     }
+     if([self.dataType isEqualToString:@"integer"]){
+        if (self.array == NULL) {
+        [self.arrayWarning setStringValue: @"Array is not generated yet."];
+        return;
+        }
+      
+        terminal([self.algorithmType UTF8String], [self.dataSize intValue], self.array); //convert to C string from Object-C string
+
+        [self updateExecutionTime:executionTime]; // Call the update method with the execution time
+     }
+    
 }
 
 - (void)updateExecutionTime:(double)executionTime {
@@ -290,7 +331,6 @@
     // Set the output label to the sorted string
     [self.outputLabel setStringValue:sortedString];
     
-    // Free allocated memory
     free(array);
 }
 

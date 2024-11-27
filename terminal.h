@@ -23,5 +23,6 @@ extern double executionTime;
 extern SortTimings globalSortTimings; // Declare the global variable
 
 void terminal(const char *algorithmType, int dataSize, int *array);
+void terminal_float(const char *algorithmType, int dataSize, double *array);
 
 #endif
