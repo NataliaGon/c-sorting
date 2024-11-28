@@ -76,7 +76,7 @@
     self.inputTextField = [[NSTextField alloc] initWithFrame:NSMakeRect(20, 120, 360, 30)];
     [self.window.contentView addSubview:self.inputTextField];
   
-    //  Button to trigger sorting
+    // Button to trigger sorting
     NSButton *sortButton = [[NSButton alloc] initWithFrame:NSMakeRect(150, 70, 100, 30)];
     [sortButton setTitle:@"Sort"];
     [sortButton setButtonType:NSButtonTypeMomentaryPushIn];
@@ -94,61 +94,34 @@
     [self.outputLabel setStringValue:@""]; // Initially empty
     [self.window.contentView addSubview:self.outputLabel];
 
-      // Label Warning-Notificaiton
-    self.arrayWarning = [[NSTextField alloc] initWithFrame:NSMakeRect(20, 30, 360, 30)];
-    [self.arrayWarning setBezeled:NO];
-    [self.arrayWarning setDrawsBackground:NO];
-    [self.arrayWarning setEditable:NO];
-    [self.arrayWarning setSelectable:NO];
-    [self.arrayWarning setStringValue:@""]; // Initially empty
-    [self.window.contentView addSubview:self.arrayWarning];
-
-      // Title above dropdown
+    // Choose data type LABEL 
     self.dropdownLabelDataType = [[NSTextField alloc] initWithFrame:NSMakeRect(100, 440, 200, 30)];
     [self.dropdownLabelDataType setBezeled:NO];
     [self.dropdownLabelDataType setDrawsBackground:NO];
     [self.dropdownLabelDataType setEditable:NO];
     [self.dropdownLabelDataType setSelectable:NO];
-    [self.dropdownLabelDataType setStringValue:@"Step1. Choose data type:"];
+    [self.dropdownLabelDataType setStringValue:@"Step 1. Choose data type:"];
     [self.window.contentView addSubview:self.dropdownLabelDataType];
 
-    // Create the dropdown menu
-    self.dropdownDataType = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(100, 400, 200, 30) pullsDown:NO];
+    // Choose data type DROPDOWN
+    self.dropdownDataType = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(100, 420, 200, 30) pullsDown:NO];
     [self.dropdownDataType addItemWithTitle:@"integer"];
     [self.dropdownDataType addItemWithTitle:@"real"];
     [self.dropdownDataType setTarget:self];
     [self.dropdownDataType setAction:@selector(dropdownChangedDataType:)];
     [self.window.contentView addSubview:self.dropdownDataType];
 
-    // Title above dropdown
-    self.dropdownLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(400, 240, 200, 30)];
-    [self.dropdownLabel setBezeled:NO];
-    [self.dropdownLabel setDrawsBackground:NO];
-    [self.dropdownLabel setEditable:NO];
-    [self.dropdownLabel setSelectable:NO];
-    [self.dropdownLabel setStringValue:@"Step3.Choose sort type:"];
-    [self.window.contentView addSubview:self.dropdownLabel];
-
-    // Create the dropdown menu
-    self.dropdown = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(400, 200, 200, 30) pullsDown:NO];
-    [self.dropdown addItemWithTitle:@"Merge"];
-    [self.dropdown addItemWithTitle:@"Quick"];
-    [self.dropdown addItemWithTitle:@"Heap"];
-    [self.dropdown setTarget:self];
-    [self.dropdown setAction:@selector(dropdownSelectionChanged:)];
-    [self.window.contentView addSubview:self.dropdown];
-
-    // Title above dropdown
-    self.dropdownLabelSize = [[NSTextField alloc] initWithFrame:NSMakeRect(100, 240, 200, 30)];
+    // Choose data size LABEL
+    self.dropdownLabelSize = [[NSTextField alloc] initWithFrame:NSMakeRect(350, 440, 200, 30)];
     [self.dropdownLabelSize setBezeled:NO];
     [self.dropdownLabelSize setDrawsBackground:NO];
     [self.dropdownLabelSize setEditable:NO];
     [self.dropdownLabelSize setSelectable:NO];
-    [self.dropdownLabelSize setStringValue:@"Step2. Choose data size:"];
+    [self.dropdownLabelSize setStringValue:@"Step 2. Choose data size:"];
     [self.window.contentView addSubview:self.dropdownLabelSize];
 
-    // Create the dropdown menu
-    self.dropdownSize = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(100, 200, 200, 30) pullsDown:NO];
+    // Choose data size DROPDOWN
+    self.dropdownSize = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(350, 420, 200, 30) pullsDown:NO];
     [self.dropdownSize addItemWithTitle:@"10"];
     [self.dropdownSize addItemWithTitle:@"100"];
     [self.dropdownSize addItemWithTitle:@"1000"];
@@ -158,7 +131,48 @@
     [self.dropdownSize setAction:@selector(dropdownChangedSize:)];
     [self.window.contentView addSubview:self.dropdownSize];
 
-    NSButton *sortGeneratedButton = [[NSButton alloc] initWithFrame:NSMakeRect(400, 160, 200, 30)];
+    // Generate array BUTTON
+    NSButton *generateArrayButton = [[NSButton alloc] initWithFrame:NSMakeRect(350, 380, 200, 30)];
+    [generateArrayButton setTitle:@"Generate array"];
+    [generateArrayButton setButtonType:NSButtonTypeMomentaryPushIn];
+    [generateArrayButton setBezelStyle:NSBezelStyleRounded];
+    [generateArrayButton setTarget:self];
+    [generateArrayButton setBordered:NO]; 
+    generateArrayButton.wantsLayer = YES;
+    generateArrayButton.layer.backgroundColor = [[NSColor systemBlueColor] CGColor]; // Set background color
+    generateArrayButton.layer.cornerRadius = 5.0; // Optional: round corners
+    [generateArrayButton setAction:@selector(generateArray:)];
+    [self.window.contentView addSubview:generateArrayButton];
+
+    // Label Warning-Notificaiton
+    self.arrayWarning = [[NSTextField alloc] initWithFrame:NSMakeRect(350, 340, 360, 30)];
+    [self.arrayWarning setBezeled:NO];
+    [self.arrayWarning setDrawsBackground:NO];
+    [self.arrayWarning setEditable:NO];
+    [self.arrayWarning setSelectable:NO];
+    [self.arrayWarning setStringValue:@""]; // Initially empty
+    [self.window.contentView addSubview:self.arrayWarning];
+
+    // Choose sort type LABEL
+    self.dropdownLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(600, 440, 200, 30)];
+    [self.dropdownLabel setBezeled:NO];
+    [self.dropdownLabel setDrawsBackground:NO];
+    [self.dropdownLabel setEditable:NO];
+    [self.dropdownLabel setSelectable:NO];
+    [self.dropdownLabel setStringValue:@"Step 3.Choose sort type:"];
+    [self.window.contentView addSubview:self.dropdownLabel];
+
+    // Choose sort type DROPDOWN
+    self.dropdown = [[NSPopUpButton alloc] initWithFrame:NSMakeRect(600, 420, 200, 30) pullsDown:NO];
+    [self.dropdown addItemWithTitle:@"Merge"];
+    [self.dropdown addItemWithTitle:@"Quick"];
+    [self.dropdown addItemWithTitle:@"Heap"];
+    [self.dropdown setTarget:self];
+    [self.dropdown setAction:@selector(dropdownSelectionChanged:)];
+    [self.window.contentView addSubview:self.dropdown];
+
+    // Sort generated array BUTTON
+    NSButton *sortGeneratedButton = [[NSButton alloc] initWithFrame:NSMakeRect(600, 380, 200, 30)];
     [sortGeneratedButton setTitle:@"Sort generated array"];
     [sortGeneratedButton setButtonType:NSButtonTypeMomentaryPushIn];
     [sortGeneratedButton setBezelStyle:NSBezelStyleRounded];
@@ -173,24 +187,13 @@
     [sortGeneratedButton setAction:@selector(sortGenerated:)];
     [self.window.contentView addSubview:sortGeneratedButton];
    
-    NSButton *generateArrayButton = [[NSButton alloc] initWithFrame:NSMakeRect(100, 160, 200, 30)];
-    [generateArrayButton setTitle:@"Generate array"];
-    [generateArrayButton setButtonType:NSButtonTypeMomentaryPushIn];
-    [generateArrayButton setBezelStyle:NSBezelStyleRounded];
-    [generateArrayButton setTarget:self];
-    [generateArrayButton setBordered:NO]; 
-    generateArrayButton.wantsLayer = YES;
-    generateArrayButton.layer.backgroundColor = [[NSColor systemBlueColor] CGColor]; // Set background color
-    generateArrayButton.layer.cornerRadius = 5.0; // Optional: round corners
-    [generateArrayButton setAction:@selector(generateArray:)];
-    [self.window.contentView addSubview:generateArrayButton];
 
-    // Execution time label
-    self.executionTimeLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(400, 100, 300, 30)];
+    // Execution time LABEL
+    self.executionTimeLabel = [[NSTextField alloc] initWithFrame:NSMakeRect(600, 340, 300, 30)];
     [self.executionTimeLabel setEditable:NO];
     [self.executionTimeLabel setBezeled:NO];
     [self.executionTimeLabel setDrawsBackground:NO];
-    [self.executionTimeLabel setStringValue:[NSString stringWithFormat:@"Execution Time: %.4f seconds", executionTime]];
+    [self.executionTimeLabel setStringValue:[NSString stringWithFormat:@""]];
     [self.window.contentView addSubview:self.executionTimeLabel];  
 }
 
