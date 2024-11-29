@@ -12,4 +12,4 @@ void mergeSortFloat(double arr[], int left, int right);
 
 extern int swapCounter;
 
-#endif // QUICK_SORT_H
+#endif

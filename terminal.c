@@ -5,10 +5,10 @@
 #include "terminal.h"
 #include "sort.h"
 
-SortTimings globalSortTimings; // Define the global variable
+SortTimings globalSortTimings;
 
 double executionTime;
-void terminal(const char *algorithmType, int dataSize, int *array)
+void terminal_integer(const char *algorithmType, int dataSize, int *array)
 {
     printf("The algorithmType is: %s\n, %d\n", algorithmType, dataSize);
 
@@ -32,9 +32,9 @@ void terminal(const char *algorithmType, int dataSize, int *array)
         printf("Merge");
         printf("Merge Sort\n");
         clock_t start = clock();
-        mergeSort(arrayCopy, 0, dataSize - 1); // Call mergeSort
+        mergeSort(arrayCopy, 0, dataSize - 1);
         clock_t end = clock();
-        double time_taken = ((double)end - start) / CLOCKS_PER_SEC; // in seconds
+        double time_taken = ((double)end - start) / CLOCKS_PER_SEC;
         printf("Time taken by Merge Sort: %f seconds\n", time_taken);
         executionTime = time_taken;
     }
@@ -43,9 +43,9 @@ void terminal(const char *algorithmType, int dataSize, int *array)
         printf("Yep I am here\n");
 
         clock_t start = clock();
-        quickSort(arrayCopy, 0, dataSize - 1); // replace with dataSize
+        quickSort(arrayCopy, 0, dataSize - 1);
         clock_t end = clock();
-        double time_taken = ((double)end - start) / CLOCKS_PER_SEC; // in seconds
+        double time_taken = ((double)end - start) / CLOCKS_PER_SEC;
         printf("Time taken by the algorithm: %f seconds\n", time_taken);
         executionTime = time_taken;
     }
@@ -60,8 +60,8 @@ void terminal(const char *algorithmType, int dataSize, int *array)
         executionTime = time_taken;
     }
 
-    // Free memory
     free(arrayCopy);
+    arrayCopy = NULL;
 }
 
 void terminal_float(const char *algorithmType, int dataSize, double *array)
@@ -77,13 +77,11 @@ void terminal_float(const char *algorithmType, int dataSize, double *array)
         return;
     }
 
-    // Copy the contents of the original array into the new array
     for (int i = 0; i < dataSize; i++)
     {
         arrayCopy[i] = array[i];
     }
 
-    // Select algorithm based on type
     if (strcmp(algorithmType, "Merge") == 0)
     {
         clock_t start = clock();
@@ -112,7 +110,6 @@ void terminal_float(const char *algorithmType, int dataSize, double *array)
         executionTime = time_taken;
     }
 
-    // Free memory
     free(arrayCopy);
     arrayCopy = NULL;
 }
