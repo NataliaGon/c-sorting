@@ -5,8 +5,6 @@
 #include "terminal.h"
 #include "sort.h"
 
-SortTimings globalSortTimings;
-
 double executionTime;
 void terminal_integer(const char *algorithmType, int dataSize, int *array)
 {
@@ -32,10 +30,9 @@ void terminal_integer(const char *algorithmType, int dataSize, int *array)
         printf("Merge");
         printf("Merge Sort\n");
         clock_t start = clock();
-        mergeSort(arrayCopy, 0, dataSize - 1);
+        mergeSort_integer(arrayCopy, 0, dataSize - 1);
         clock_t end = clock();
         double time_taken = ((double)end - start) / CLOCKS_PER_SEC;
-        printf("Time taken by Merge Sort: %f seconds\n", time_taken);
         executionTime = time_taken;
     }
     if (strcmp(algorithmType, "Quick") == 0)
@@ -43,20 +40,18 @@ void terminal_integer(const char *algorithmType, int dataSize, int *array)
         printf("Yep I am here\n");
 
         clock_t start = clock();
-        quickSort(arrayCopy, 0, dataSize - 1);
+        quickSort_integer(arrayCopy, 0, dataSize - 1);
         clock_t end = clock();
         double time_taken = ((double)end - start) / CLOCKS_PER_SEC;
-        printf("Time taken by the algorithm: %f seconds\n", time_taken);
         executionTime = time_taken;
     }
     if (strcmp(algorithmType, "Heap") == 0)
     {
         printf("Heap Sort\n");
         clock_t start = clock();
-        heapSort(arrayCopy, dataSize);
+        heapSort_integer(arrayCopy, dataSize);
         clock_t end = clock();
         double time_taken = ((double)end - start) / CLOCKS_PER_SEC;
-        printf("Time taken by Heap Sort: %f seconds\n", time_taken);
         executionTime = time_taken;
     }
 
@@ -64,11 +59,8 @@ void terminal_integer(const char *algorithmType, int dataSize, int *array)
     arrayCopy = NULL;
 }
 
-void terminal_float(const char *algorithmType, int dataSize, double *array)
+void terminal_real(const char *algorithmType, int dataSize, double *array)
 {
-    printf("The algorithmType is: %s\n", algorithmType);
-    printf("The data size is: %d\n", dataSize);
-
     // Allocate memory for a copy of the array
     double *arrayCopy = (double *)malloc(dataSize * sizeof(double));
     if (arrayCopy == NULL)
@@ -85,10 +77,9 @@ void terminal_float(const char *algorithmType, int dataSize, double *array)
     if (strcmp(algorithmType, "Merge") == 0)
     {
         clock_t start = clock();
-        mergeSortFloat(arrayCopy, 0, dataSize - 1);
+        mergeSort_double(arrayCopy, 0, dataSize - 1);
         clock_t end = clock();
         double time_taken = ((double)end - start) / CLOCKS_PER_SEC;
-        printf("Time taken by Merge Sort: %f seconds\n", time_taken);
         executionTime = time_taken;
     }
     else if (strcmp(algorithmType, "Quick") == 0)
@@ -97,7 +88,6 @@ void terminal_float(const char *algorithmType, int dataSize, double *array)
         quickSort_double(arrayCopy, 0, dataSize - 1);
         clock_t end = clock();
         double time_taken = ((double)end - start) / CLOCKS_PER_SEC;
-        printf("Time taken by quick Sort: %f seconds\n", time_taken);
         executionTime = time_taken;
     }
     else if (strcmp(algorithmType, "Heap") == 0)
@@ -106,7 +96,6 @@ void terminal_float(const char *algorithmType, int dataSize, double *array)
         heapSort_double(arrayCopy, dataSize);
         clock_t end = clock();
         double time_taken = ((double)end - start) / CLOCKS_PER_SEC;
-        printf("Time taken by Heap Sort: %f seconds\n", time_taken);
         executionTime = time_taken;
     }
 

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "sort.h"
 
-void merge(int arr[], int left, int mid, int right)
+void merge_integer(int arr[], int left, int mid, int right)
 {
     int n1 = mid - left + 1;
     int n2 = right - mid;
@@ -47,22 +47,21 @@ void merge(int arr[], int left, int mid, int right)
     }
 }
 
-void mergeSort(int arr[], int left, int right)
+void mergeSort_integer(int arr[], int left, int right)
 {
     swapCounter = 0;
     if (left < right)
     {
         int mid = left + (right - left) / 2;
 
-        mergeSort(arr, left, mid);
-        mergeSort(arr, mid + 1, right);
+        mergeSort_integer(arr, left, mid);
+        mergeSort_integer(arr, mid + 1, right);
 
-        merge(arr, left, mid, right);
+        merge_integer(arr, left, mid, right);
     }
 }
 
-// Merge function for floats
-void mergeFloat(double arr[], int left, int mid, int right)
+void merge_double(double arr[], int left, int mid, int right)
 {
     int n1 = mid - left + 1;
     int n2 = right - mid;
@@ -108,17 +107,16 @@ void mergeFloat(double arr[], int left, int mid, int right)
     }
 }
 
-// Merge Sort function for floats
-void mergeSortFloat(double arr[], int left, int right)
+void mergeSort_double(double arr[], int left, int right)
 {
     swapCounter = 0;
     if (left < right)
     {
         int mid = left + (right - left) / 2;
 
-        mergeSortFloat(arr, left, mid);
-        mergeSortFloat(arr, mid + 1, right);
+        mergeSort_double(arr, left, mid);
+        mergeSort_double(arr, mid + 1, right);
 
-        mergeFloat(arr, left, mid, right);
+        merge_double(arr, left, mid, right);
     }
 }

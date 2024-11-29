@@ -241,7 +241,7 @@
         return;
         }
       
-        terminal_float([self.algorithmType UTF8String], [self.dataSize intValue], self.arrayReal); 
+        terminal_real([self.algorithmType UTF8String], [self.dataSize intValue], self.arrayReal); 
 
         [self updateExecutionTime:executionTime]; 
 
