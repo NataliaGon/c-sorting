@@ -2,6 +2,97 @@
 #import "sort.h"
 #import "terminal.h"
 
+
+// LineChartView: Custom View for Drawing a Simple Line Chart
+@interface LineChartView : NSView
+@property (nonatomic, strong) NSArray *dataPoints; // Y-values for the chart
+@property (nonatomic, strong) NSArray *monthLabels; // X-axis labels (months)
+@end
+
+@implementation LineChartView
+
+- (instancetype)initWithFrame:(NSRect)frameRect {
+    self = [super initWithFrame:frameRect];
+    if (self) {
+        _dataPoints = @[]; // Default empty array
+        _monthLabels = @[]; // Default empty labels
+    }
+    return self;
+}
+
+- (void)setDataPoints:(NSArray *)dataPoints {
+    _dataPoints = dataPoints;
+    [self setNeedsDisplay:YES];  // Redraw when data changes
+}
+
+- (void)setMonthLabels:(NSArray *)monthLabels {
+    _monthLabels = monthLabels;
+    [self setNeedsDisplay:YES];  // Redraw when labels change
+}
+
+- (void)drawRect:(NSRect)dirtyRect {
+    [super drawRect:dirtyRect];
+    
+    // Set up drawing context
+    NSGraphicsContext *context = [NSGraphicsContext currentContext];
+    [context saveGraphicsState];
+    
+    // Drawing setup
+    NSColor *lineColor = [NSColor systemBlueColor];
+    [lineColor setStroke];
+    
+    NSBezierPath *path = [NSBezierPath bezierPath];
+    
+    CGFloat padding = 30.0;
+    CGFloat maxY = [[self.dataPoints valueForKeyPath:@"@max.floatValue"] floatValue];
+    CGFloat minY = [[self.dataPoints valueForKeyPath:@"@min.floatValue"] floatValue];
+    CGFloat rangeY = maxY - minY;
+    
+    if (rangeY == 0) rangeY = 1;  // Prevent division by zero
+    
+    CGFloat chartWidth = self.frame.size.width - 2 * padding;
+    CGFloat chartHeight = self.frame.size.height - 2 * padding;
+    
+    // Plot data points
+    for (int i = 0; i < self.dataPoints.count; i++) {
+        CGFloat xPos = padding + (i * chartWidth / (self.dataPoints.count - 1));
+        CGFloat yPos = padding + (([self.dataPoints[i] floatValue] - minY) / rangeY) * chartHeight;
+        
+        if (i == 0) {
+            [path moveToPoint:NSMakePoint(xPos, yPos)];
+        } else {
+            [path lineToPoint:NSMakePoint(xPos, yPos)];
+        }
+    }
+    
+    [path stroke];
+    
+    // Draw X-axis labels (Months)
+    if (self.monthLabels.count > 0) {
+        for (int i = 0; i < self.monthLabels.count; i++) {
+            CGFloat xPos = padding + (i * chartWidth / (self.monthLabels.count - 1));
+            NSString *label = self.monthLabels[i];
+            NSDictionary *attributes = @{NSFontAttributeName: [NSFont systemFontOfSize:10],
+                                         NSForegroundColorAttributeName: [NSColor blackColor]};
+            [label drawAtPoint:NSMakePoint(xPos, padding / 2) withAttributes:attributes];
+        }
+    }
+    
+    // Draw Y-axis labels
+    for (int i = 0; i <= 5; i++) {
+        CGFloat yPos = padding + ((chartHeight / 5) * i);
+        CGFloat value = minY + (rangeY / 5) * i;
+        NSString *label = [NSString stringWithFormat:@"%.1f", value];
+        NSDictionary *attributes = @{NSFontAttributeName: [NSFont systemFontOfSize:10],
+                                     NSForegroundColorAttributeName: [NSColor blackColor]};
+        [label drawAtPoint:NSMakePoint(padding / 2, yPos) withAttributes:attributes];
+    }
+    
+    [context restoreGraphicsState];
+}
+
+@end
+
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 @property (strong) NSWindow *window;
 @property (strong) NSTextField *arrayNotification;
@@ -292,6 +383,7 @@
     [self.executionTimeLabel setStringValue:[NSString stringWithFormat:@"Execution Time: %f seconds \nSwaps: %d ", executionTime, swapCounter]];
 }
 
+// Toggle second window to show the chart
 - (void)toggleSecondWindow:(id)sender {
     if (self.isSecondWindowOpen) {
         // If the second window is already open, bring it to the front
@@ -311,20 +403,13 @@
                                                                defer:NO];
             [self.secondWindow setTitle:@"Second Window"];
             
-            // Add label or other UI elements to the second window
-            NSTextField *label = [[NSTextField alloc] initWithFrame:NSMakeRect(100, 130, 200, 40)];
-            [label setBezeled:NO];
-            [label setDrawsBackground:NO];
-            [label setEditable:NO];
-            [label setSelectable:NO];
-            [label setStringValue:@"This is the second window!"];
-            [self.secondWindow.contentView addSubview:label];
+            // Add the line chart view to the second window
+            LineChartView *chartView = [[LineChartView alloc] initWithFrame:NSMakeRect(0, 0, 400, 300)];
+            [self.secondWindow.contentView addSubview:chartView];
             
-            // Register for the window close notification
-            [[NSNotificationCenter defaultCenter] addObserver:self
-                                                     selector:@selector(windowWillClose:)
-                                                         name:NSWindowWillCloseNotification
-                                                       object:self.secondWindow];
+            // Provide some dummy data points for the chart (for example: random data)
+            NSArray *dummyData = @[@10, @30, @50, @20, @40, @60, @70, @90];
+            chartView.dataPoints = dummyData;
         }
         
         // Make the window visible and bring it to the front
@@ -332,7 +417,6 @@
         self.isSecondWindowOpen = YES;
     }
 }
-
 
 
 
