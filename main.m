@@ -17,6 +17,9 @@
 @property (nonatomic, strong) NSString *dataSize;
 @property (nonatomic) int *arrayInteger;
 @property (nonatomic) double *arrayReal;
+@property (strong) NSWindow *secondWindow;  // Second window property
+@property (nonatomic) BOOL isSecondWindowOpen;  // Flag to track if second window is open
+
 
 @end
 
@@ -28,6 +31,9 @@
         _algorithmType = @"Merge";  
         _dataSize = @"1000"; 
         _dataType=@"Integer";
+         _arrayInteger = NULL;
+        _arrayReal = NULL;
+        _isSecondWindowOpen = NO;
     }
     return self;
 }
@@ -37,6 +43,12 @@
     int swapCounter=0;
 
     NSRect frame = NSMakeRect(0, 0, 2000, 600);
+    // Inside applicationDidFinishLaunching
+   [[NSNotificationCenter defaultCenter] addObserver:self
+                                         selector:@selector(windowWillClose:)
+                                             name:NSWindowWillCloseNotification
+                                           object:nil];
+
     self.window = [[NSWindow alloc] initWithContentRect:frame
                                                styleMask:(NSWindowStyleMaskTitled |
                                                           NSWindowStyleMaskClosable |
@@ -141,6 +153,17 @@
     [self.executionTimeLabel setDrawsBackground:NO];
     [self.executionTimeLabel setStringValue:[NSString stringWithFormat:@""]];
     [self.window.contentView addSubview:self.executionTimeLabel];  
+
+    NSButton *toggleSecondWindowButton = [[NSButton alloc] initWithFrame:NSMakeRect(350, 300, 200, 30)];
+    [toggleSecondWindowButton setTitle:@"Open Second Window"];
+    [toggleSecondWindowButton setButtonType:NSButtonTypeMomentaryPushIn];
+    [toggleSecondWindowButton setBezelStyle:NSBezelStyleRounded];
+    [toggleSecondWindowButton setTarget:self];
+    [toggleSecondWindowButton setAction:@selector(toggleSecondWindow:)];
+    [self.window.contentView addSubview:toggleSecondWindowButton];
+
+    // Initialize the flag for the second window
+    self.isSecondWindowOpen = NO;
 }
 
 - (void)dealloc {
@@ -169,58 +192,75 @@
     self.dataType = [self.dropdownDataType titleOfSelectedItem];
     NSLog(@"Data type: %@", self.dataType);
 }
--(void)generateArray:(id)sender{
-   // First, check if arraySize is set properly (e.g., from the dropdown)
+
+-(void)generateArray:(id)sender {
     NSLog(@"Data type in generate array: %@", self.dataType);
-  
+    
+    // Update the notification text
     [self.arrayNotification setStringValue: @"Array is generating. Please wait."];
     [[NSRunLoop currentRunLoop] runUntilDate:[NSDate date]];  // Allow UI updates with notification
+    
     NSInteger size = [self.dataSize intValue]; // Get the array size as an integer
-   
-    if([self.dataType isEqualToString:@"Integer"]){
-    // Allocate memory for the array based on the size
-    self.arrayInteger = malloc(size * sizeof(int)); // Allocate space for 'size' integers
-    
-    if (self.arrayInteger == NULL) {
-        NSLog(@"Memory allocation failed.");
-        return;
-    }
-    
-    for (int i = 0; i < size; i++) {
-        self.arrayInteger[i] = rand() % 1000000; 
-    }
-    [self.arrayNotification setStringValue: @"Array is generated"];
-    NSLog(@"Generated array:");
-    for (int i = 0; i < size; i++) {
-        NSLog(@"%d", self.arrayInteger[i]);
-    }
 
-    }
-    if([self.dataType isEqualToString:@"Real"]){
-        NSLog(@"To generate real");
-         self.arrayReal = malloc(size * sizeof(double));
+    // If array is already allocated, free it before reallocating
+    if ([self.dataType isEqualToString:@"Integer"]) {
+        if (self.arrayInteger != NULL) {
+            free(self.arrayInteger);  // Free previous integer array if it exists
+        }
+        
+        // Allocate new memory for the integer array
+        self.arrayInteger = malloc(size * sizeof(int));
+        if (self.arrayInteger == NULL) {
+            NSLog(@"Memory allocation failed for integer array.");
+            return;
+        }
 
-    if (self.arrayReal == NULL) {
-        NSLog(@"Memory allocation failed.");
-        return;
+        // Generate random values for the integer array
+        for (int i = 0; i < size; i++) {
+            self.arrayInteger[i] = rand() % 1000000;  // Random integer between 0 and 999999
+        }
+
+        [self.arrayNotification setStringValue: @"Integer array is generated"];
+        
+        // Optional: Print the generated array to check if it's correct
+        NSLog(@"Generated integer array:");
+        for (int i = 0; i < size; i++) {
+            NSLog(@"%d", self.arrayInteger[i]);
+        }
     }
     
-    // Populate the array with random values
-    for (int i = 0; i < size; i++) {
-       double randomNum = (double)(rand() % 1000000) / 1000.0;  // Random float value
+    if ([self.dataType isEqualToString:@"Real"]) {
+        if (self.arrayReal != NULL) {
+            free(self.arrayReal);  // Free previous real array if it exists
+        }
+
+        // Allocate new memory for the real array
+        self.arrayReal = malloc(size * sizeof(double));
+        if (self.arrayReal == NULL) {
+            NSLog(@"Memory allocation failed for real array.");
+            return;
+        }
+
+        // Generate random real numbers for the array
+        for (int i = 0; i < size; i++) {
+            double randomNum = (double)(rand() % 1000000) / 1000.0;  // Random float value
             if (rand() % 2 == 0) {
                 randomNum = -randomNum;  // 50% chance to make it negative
             }
-            self.arrayReal[i] = randomNum; 
-    }
-    [self.arrayNotification setStringValue: @"Array is generated"];
-    // Optional: Print the generated array to check if it's correct
-    NSLog(@"Generated array:");
-    for (int i = 0; i < size; i++) {
-        NSLog(@"%f", self.arrayReal[i]);
-    } 
+            self.arrayReal[i] = randomNum;
+        }
+
+        [self.arrayNotification setStringValue: @"Real array is generated"];
+        
+        // Optional: Print the generated array to check if it's correct
+        NSLog(@"Generated real array:");
+        for (int i = 0; i < size; i++) {
+            NSLog(@"%f", self.arrayReal[i]);
+        }
     }
 }
+
+
 
 - (void)sortGenerated:(id)sender{
    
@@ -251,6 +291,69 @@
 - (void)updateExecutionTime:(double)executionTime {
     [self.executionTimeLabel setStringValue:[NSString stringWithFormat:@"Execution Time: %f seconds \nSwaps: %d ", executionTime, swapCounter]];
 }
+
+- (void)toggleSecondWindow:(id)sender {
+    if (self.isSecondWindowOpen) {
+        // If the second window is already open, bring it to the front
+        if (self.secondWindow) {
+            [self.secondWindow makeKeyAndOrderFront:nil];
+        }
+    } else {
+        // Create the second window only once, if not already created
+        if (!self.secondWindow) {
+            // Create the second window with frame and properties
+            NSRect frame = NSMakeRect(0, 0, 400, 300);
+            self.secondWindow = [[NSWindow alloc] initWithContentRect:frame
+                                                           styleMask:(NSWindowStyleMaskTitled |
+                                                                        NSWindowStyleMaskClosable |
+                                                                        NSWindowStyleMaskResizable)
+                                                             backing:NSBackingStoreBuffered
+                                                               defer:NO];
+            [self.secondWindow setTitle:@"Second Window"];
+            
+            // Add label or other UI elements to the second window
+            NSTextField *label = [[NSTextField alloc] initWithFrame:NSMakeRect(100, 130, 200, 40)];
+            [label setBezeled:NO];
+            [label setDrawsBackground:NO];
+            [label setEditable:NO];
+            [label setSelectable:NO];
+            [label setStringValue:@"This is the second window!"];
+            [self.secondWindow.contentView addSubview:label];
+            
+            // Register for the window close notification
+            [[NSNotificationCenter defaultCenter] addObserver:self
+                                                     selector:@selector(windowWillClose:)
+                                                         name:NSWindowWillCloseNotification
+                                                       object:self.secondWindow];
+        }
+        
+        // Make the window visible and bring it to the front
+        [self.secondWindow makeKeyAndOrderFront:nil];
+        self.isSecondWindowOpen = YES;
+    }
+}
+
+
+
+
+- (void)windowWillClose:(NSNotification *)notification {
+    if (notification.object == self.secondWindow) {
+        // Log window closure
+        NSLog(@"Second window closed, resetting flag.");
+        
+        // Reset the flag
+        self.isSecondWindowOpen = NO;
+        
+        // Remove the observer for window closure notification
+        [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                        name:NSWindowWillCloseNotification
+                                                      object:self.secondWindow];
+        
+        // Deallocate the second window reference
+        self.secondWindow = nil;
+    }
+}
+
 
 @end
 
