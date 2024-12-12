@@ -3,10 +3,13 @@
 #import "terminal.h"
 
 
-// LineChartView: Custom View for Drawing a Simple Line Chart
+
 @interface LineChartView : NSView
-@property (nonatomic, strong) NSArray *dataPoints; // Y-values for the chart
-@property (nonatomic, strong) NSArray *monthLabels; // X-axis labels (months)
+@property (nonatomic, strong) NSArray *mergeDataPoints;  // Y-values for Merge
+@property (nonatomic, strong) NSArray *heapDataPoints;   // Y-values for Heap
+@property (nonatomic, strong) NSArray *quickDataPoints;  // Y-values for Quick
+@property (nonatomic, strong) NSArray *xLabels;          // X-axis labels (dataset sizes)
+@property (nonatomic, strong) NSString *chartTitle;      // Title of the chart
 @end
 
 @implementation LineChartView
@@ -14,68 +17,66 @@
 - (instancetype)initWithFrame:(NSRect)frameRect {
     self = [super initWithFrame:frameRect];
     if (self) {
-        _dataPoints = @[]; // Default empty array
-        _monthLabels = @[]; // Default empty labels
+        _mergeDataPoints = @[];
+        _heapDataPoints = @[];
+        _quickDataPoints = @[];
+        _xLabels = @[];
     }
     return self;
 }
 
-- (void)setDataPoints:(NSArray *)dataPoints {
-    _dataPoints = dataPoints;
-    [self setNeedsDisplay:YES];  // Redraw when data changes
+- (void)setMergeDataPoints:(NSArray *)mergeDataPoints {
+    _mergeDataPoints = mergeDataPoints;
+    [self setNeedsDisplay:YES];
 }
 
-- (void)setMonthLabels:(NSArray *)monthLabels {
-    _monthLabels = monthLabels;
-    [self setNeedsDisplay:YES];  // Redraw when labels change
+- (void)setHeapDataPoints:(NSArray *)heapDataPoints {
+    _heapDataPoints = heapDataPoints;
+    [self setNeedsDisplay:YES];
+}
+
+- (void)setQuickDataPoints:(NSArray *)quickDataPoints {
+    _quickDataPoints = quickDataPoints;
+    [self setNeedsDisplay:YES];
+}
+
+- (void)setXLabels:(NSArray *)xLabels {
+    _xLabels = xLabels;
+    [self setNeedsDisplay:YES];
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
     [super drawRect:dirtyRect];
     
-    // Set up drawing context
     NSGraphicsContext *context = [NSGraphicsContext currentContext];
     [context saveGraphicsState];
     
-    // Drawing setup
-    NSColor *lineColor = [NSColor systemBlueColor];
-    [lineColor setStroke];
+    // Set up drawing context
+    NSColor *mergeLineColor = [NSColor systemBlueColor];
+    NSColor *heapLineColor = [NSColor systemGreenColor];
+    NSColor *quickLineColor = [NSColor systemRedColor];
     
-    NSBezierPath *path = [NSBezierPath bezierPath];
-    
-    CGFloat padding = 30.0;
-    CGFloat maxY = [[self.dataPoints valueForKeyPath:@"@max.floatValue"] floatValue];
-    CGFloat minY = [[self.dataPoints valueForKeyPath:@"@min.floatValue"] floatValue];
-    CGFloat rangeY = maxY - minY;
-    
-    if (rangeY == 0) rangeY = 1;  // Prevent division by zero
-    
+    CGFloat padding = 40.0;
     CGFloat chartWidth = self.frame.size.width - 2 * padding;
     CGFloat chartHeight = self.frame.size.height - 2 * padding;
     
-    // Plot data points
-    for (int i = 0; i < self.dataPoints.count; i++) {
-        CGFloat xPos = padding + (i * chartWidth / (self.dataPoints.count - 1));
-        CGFloat yPos = padding + (([self.dataPoints[i] floatValue] - minY) / rangeY) * chartHeight;
-        
-        if (i == 0) {
-            [path moveToPoint:NSMakePoint(xPos, yPos)];
-        } else {
-            [path lineToPoint:NSMakePoint(xPos, yPos)];
-        }
-    }
+    // Y-axis range
+    CGFloat maxY = fmax([self calculateMaxValueFromDataPoints:@[self.mergeDataPoints, self.heapDataPoints, self.quickDataPoints]], 0.1);
+    CGFloat minY = 0.0; // The Y-axis will always start from 0.0
+    CGFloat rangeY = maxY - minY;
     
-    [path stroke];
+    // Draw the lines for Merge, Heap, and Quick Sorts (on one chart)
+    [self drawLineChartWithDataPoints:self.mergeDataPoints lineColor:mergeLineColor chartWidth:chartWidth chartHeight:chartHeight minY:minY rangeY:rangeY padding:padding];
+    [self drawLineChartWithDataPoints:self.heapDataPoints lineColor:heapLineColor chartWidth:chartWidth chartHeight:chartHeight minY:minY rangeY:rangeY padding:padding];
+    [self drawLineChartWithDataPoints:self.quickDataPoints lineColor:quickLineColor chartWidth:chartWidth chartHeight:chartHeight minY:minY rangeY:rangeY padding:padding];
     
-    // Draw X-axis labels (Months)
-    if (self.monthLabels.count > 0) {
-        for (int i = 0; i < self.monthLabels.count; i++) {
-            CGFloat xPos = padding + (i * chartWidth / (self.monthLabels.count - 1));
-            NSString *label = self.monthLabels[i];
-            NSDictionary *attributes = @{NSFontAttributeName: [NSFont systemFontOfSize:10],
-                                         NSForegroundColorAttributeName: [NSColor blackColor]};
-            [label drawAtPoint:NSMakePoint(xPos, padding / 2) withAttributes:attributes];
-        }
+    // Draw X-axis labels
+    for (int i = 0; i < self.xLabels.count; i++) {
+        CGFloat xPos = padding + (i * chartWidth / (self.xLabels.count - 1));
+        NSString *label = self.xLabels[i];
+        NSDictionary *attributes = @{NSFontAttributeName: [NSFont systemFontOfSize:10],
+                                     NSForegroundColorAttributeName: [NSColor blackColor]};
+        [label drawAtPoint:NSMakePoint(xPos, padding / 2) withAttributes:attributes];
     }
     
     // Draw Y-axis labels
@@ -91,7 +92,39 @@
     [context restoreGraphicsState];
 }
 
+// Helper function to draw a line for one set of data points
+- (void)drawLineChartWithDataPoints:(NSArray *)dataPoints lineColor:(NSColor *)lineColor chartWidth:(CGFloat)chartWidth chartHeight:(CGFloat)chartHeight minY:(CGFloat)minY rangeY:(CGFloat)rangeY padding:(CGFloat)padding {
+    NSBezierPath *path = [NSBezierPath bezierPath];
+    [lineColor setStroke];
+    
+    for (int i = 0; i < dataPoints.count; i++) {
+        CGFloat xPos = padding + (i * chartWidth / (dataPoints.count - 1));
+        CGFloat yPos = padding + (([dataPoints[i] floatValue] - minY) / rangeY) * chartHeight;
+        
+        if (i == 0) {
+            [path moveToPoint:NSMakePoint(xPos, yPos)];
+        } else {
+            [path lineToPoint:NSMakePoint(xPos, yPos)];
+        }
+    }
+    [path stroke];
+}
+
+// Helper function to find max value from multiple data sets
+- (CGFloat)calculateMaxValueFromDataPoints:(NSArray *)dataSets{
+    CGFloat maxVal = 0;
+    for (NSArray *dataSet in dataSets) {
+        CGFloat setMax = [[dataSet valueForKeyPath:@"@max.floatValue"] floatValue];
+        if (setMax > maxVal) {
+            maxVal = setMax;
+        }
+    }
+    return maxVal;
+}
+
 @end
+
+
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 @property (strong) NSWindow *window;
@@ -394,22 +427,45 @@
         // Create the second window only once, if not already created
         if (!self.secondWindow) {
             // Create the second window with frame and properties
-            NSRect frame = NSMakeRect(0, 0, 400, 300);
+            NSRect frame = NSMakeRect(0, 0, 1200, 600);  // Increased width to fit three charts
             self.secondWindow = [[NSWindow alloc] initWithContentRect:frame
                                                            styleMask:(NSWindowStyleMaskTitled |
                                                                         NSWindowStyleMaskClosable |
                                                                         NSWindowStyleMaskResizable)
                                                              backing:NSBackingStoreBuffered
                                                                defer:NO];
-            [self.secondWindow setTitle:@"Second Window"];
+            [self.secondWindow setTitle:@"Sorting Algorithm Charts"];
             
-            // Add the line chart view to the second window
-            LineChartView *chartView = [[LineChartView alloc] initWithFrame:NSMakeRect(0, 0, 400, 300)];
-            [self.secondWindow.contentView addSubview:chartView];
+            // Create the first chart for Merge Sort
+            LineChartView *mergeChart = [[LineChartView alloc] initWithFrame:NSMakeRect(0, 0, 400, 300)];
+            [self.secondWindow.contentView addSubview:mergeChart];
+            mergeChart.chartTitle = @"Merge Sort";
             
-            // Provide some dummy data points for the chart (for example: random data)
-            NSArray *dummyData = @[@10, @30, @50, @20, @40, @60, @70, @90];
-            chartView.dataPoints = dummyData;
+            // Create the second chart for Quick Sort
+            LineChartView *quickChart = [[LineChartView alloc] initWithFrame:NSMakeRect(400, 0, 400, 300)];
+            [self.secondWindow.contentView addSubview:quickChart];
+            quickChart.chartTitle = @"Quick Sort";
+            
+            // Create the third chart for Heap Sort
+            LineChartView *heapChart = [[LineChartView alloc] initWithFrame:NSMakeRect(800, 0, 400, 300)];
+            [self.secondWindow.contentView addSubview:heapChart];
+            heapChart.chartTitle = @"Heap Sort";
+            
+            // Provide dummy data for each chart (You can replace with real data later)
+            NSArray *mergeSortData = @[@0.1, @0.5, @1.0, @0.7, @1.5];
+            mergeChart.mergeDataPoints = mergeSortData;  // Use mergeDataPoints
+            
+            NSArray *quickSortData = @[@0.3, @0.6, @0.9, @0.8, @1.2];
+            quickChart.quickDataPoints = quickSortData;  // Use quickDataPoints
+            
+            NSArray *heapSortData = @[@0.2, @0.4, @0.8, @0.7, @1.0];
+            heapChart.heapDataPoints = heapSortData;    // Use heapDataPoints
+            
+            // Set the X-axis labels for each chart
+            NSArray *xLabels = @[@"100", @"500", @"1000", @"5000", @"10000"];
+            mergeChart.xLabels = xLabels;
+            quickChart.xLabels = xLabels;
+            heapChart.xLabels = xLabels;
         }
         
         // Make the window visible and bring it to the front
@@ -417,7 +473,6 @@
         self.isSecondWindowOpen = YES;
     }
 }
-
 
 
 - (void)windowWillClose:(NSNotification *)notification {
