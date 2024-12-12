@@ -42,14 +42,15 @@ void quickSort_integer(int *array, int low, int high)
     swapCounter = 0;
     quickSortExecute_integer(array, low, high);
 }
-void printArray_integer(int *array, int length)
-{
-    for (int i = 0; i < length; i++)
-    {
-        printf("%d ", array[i]);
-    }
-    printf("\n");
-}
+
+// void printArray_integer(int *array, int length)
+// {
+//     for (int i = 0; i < length; i++)
+//     {
+//         printf("%d ", array[i]);
+//     }
+//     printf("\n");
+// }
 
 int partition_double(double *array, int low, int high)
 {

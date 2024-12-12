@@ -2,7 +2,7 @@
 #import "sort.h"
 #import "terminal.h"
 
-@interface AppDelegate : NSObject <NSApplicationDelegate>
+@interface AppDelegate : NSObject <NSApplicationDelegate, NSWindowDelegate>
 @property (strong) NSWindow *window;
 @property (strong) NSTextField *arrayNotification;
 @property (nonatomic, strong) NSPopUpButton *dropdownAlgorithmType;
@@ -17,6 +17,10 @@
 @property (nonatomic, strong) NSString *dataSize;
 @property (nonatomic) int *arrayInteger;
 @property (nonatomic) double *arrayReal;
+@property (strong) NSWindow *graphWindow;
+@property (nonatomic) BOOL isGraphWindowOpen;
+@property (nonatomic) double executionTime;
+@property (nonatomic) int swapCounter;
 
 @end
 
@@ -28,13 +32,16 @@
         _algorithmType = @"Merge";  
         _dataSize = @"1000"; 
         _dataType=@"Integer";
+        _isGraphWindowOpen = NO; 
+        _executionTime = 0.0;
+        _swapCounter=0;
     }
     return self;
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    double executionTime = 0.0;
-    int swapCounter=0;
+    // double executionTime = 0.0;
+    // int swapCounter=0;
 
     NSRect frame = NSMakeRect(0, 0, 2000, 600);
     self.window = [[NSWindow alloc] initWithContentRect:frame
@@ -141,6 +148,21 @@
     [self.executionTimeLabel setDrawsBackground:NO];
     [self.executionTimeLabel setStringValue:[NSString stringWithFormat:@""]];
     [self.window.contentView addSubview:self.executionTimeLabel];  
+    
+      // Open Graph Window Button
+NSButton *openGraphWindowButton = [[NSButton alloc] initWithFrame:NSMakeRect(850, 380, 200, 30)];
+[openGraphWindowButton setTitle:@"Open/Close Graph"];
+[openGraphWindowButton setButtonType:NSButtonTypeMomentaryPushIn];
+[openGraphWindowButton setBezelStyle:NSBezelStyleRounded];
+[openGraphWindowButton setTarget:self];
+[openGraphWindowButton setBordered:NO];
+openGraphWindowButton.wantsLayer = YES;
+openGraphWindowButton.layer.backgroundColor = [[NSColor systemBlueColor] CGColor];
+openGraphWindowButton.layer.cornerRadius = 5.0;
+[openGraphWindowButton setAction:@selector(openGraphWindow:)];
+[self.window.contentView addSubview:openGraphWindowButton];
+
+    
 }
 
 - (void)dealloc {
@@ -251,6 +273,78 @@
 - (void)updateExecutionTime:(double)executionTime {
     [self.executionTimeLabel setStringValue:[NSString stringWithFormat:@"Execution Time: %f seconds \nSwaps: %d ", executionTime, swapCounter]];
 }
+
+- (void)openGraphWindow:(id)sender {
+    if (self.isGraphWindowOpen) {
+        // If the graph window is already open, close it
+        [self.graphWindow close];
+        self.graphWindow = nil;  // Reset the window reference
+        self.isGraphWindowOpen = NO;
+    } else {
+        // If the graph window is not open, create and open it
+        NSRect frame = NSMakeRect(0, 0, 800, 600);
+        
+        // Create the graph window if it's not already created or has been closed
+        if (!self.graphWindow) {
+            self.graphWindow = [[NSWindow alloc] initWithContentRect:frame
+                                                          styleMask:(NSWindowStyleMaskTitled |
+                                                                       NSWindowStyleMaskClosable |
+                                                                       NSWindowStyleMaskResizable)
+                                                            backing:NSBackingStoreBuffered
+                                                              defer:NO];
+            [self.graphWindow setTitle:@"Graph Window"];
+        }
+        
+        // Add a custom view to draw the graph
+        NSView *graphView = [[NSView alloc] initWithFrame:frame];
+        [self.graphWindow.contentView addSubview:graphView];
+        
+        // Draw the graph on the view
+        [self drawGraphInView:graphView];
+        
+        // Show the graph window
+        [self.graphWindow makeKeyAndOrderFront:nil];
+        self.isGraphWindowOpen = YES;
+    }
+}
+
+- (void)windowWillClose:(NSNotification *)notification {
+    // Check if the window being closed is the graph window
+    if (notification.object == self.graphWindow) {
+        // Reset the graph window reference to nil when it is closed
+        self.graphWindow = nil; // Properly reset the graph window reference
+        self.isGraphWindowOpen = NO; // Track that the graph window is no longer open
+    }
+}
+
+
+- (void)drawGraphInView:(NSView *)view {
+    // Set up a Bezier path to draw a simple graph
+    NSBezierPath *path = [NSBezierPath bezierPath];
+    
+    // Example: A simple sine wave
+    CGFloat width = view.bounds.size.width;
+    CGFloat height = view.bounds.size.height;
+    CGFloat step = width / 100;
+    
+    // Start the path
+    [path moveToPoint:NSMakePoint(0, height / 2)];
+    
+    for (CGFloat x = 0; x <= width; x += step) {
+        CGFloat y = height / 2 + 100 * sin(x / width * 2 * M_PI);  // Sine wave formula
+        [path lineToPoint:NSMakePoint(x, y)];
+    }
+    
+    // Set the stroke color
+    [[NSColor blueColor] setStroke];
+    
+    // Set the line width
+    [path setLineWidth:2.0];
+    
+    // Draw the path
+    [path stroke];
+}
+
 
 @end
 
