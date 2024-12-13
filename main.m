@@ -3,7 +3,6 @@
 #import "terminal.h"
 
 
-
 @interface LineChartView : NSView
 @property (nonatomic, strong) NSArray *mergeDataPoints;  // Y-values for Merge
 @property (nonatomic, strong) NSArray *heapDataPoints;   // Y-values for Heap
@@ -57,11 +56,11 @@
     NSColor *quickLineColor = [NSColor systemRedColor];
     
     CGFloat padding = 40.0;
-    CGFloat chartWidth = self.frame.size.width - 2 * padding;
-    CGFloat chartHeight = self.frame.size.height - 2 * padding;
+    CGFloat chartWidth = self.frame.size.width - 2 * padding - 40.0;
+    CGFloat chartHeight = self.frame.size.height - 100.0 - 2 * padding;  // Reduced height for the chart to make space for the legend
     
     // Y-axis range
-    CGFloat maxY = fmax([self calculateMaxValueFromDataPoints:@[self.mergeDataPoints, self.heapDataPoints, self.quickDataPoints]], 0.1);
+    CGFloat maxY = fmax([self calculateMaxValueFromDataPoints:@[self.mergeDataPoints, self.heapDataPoints, self.quickDataPoints]], 0.0000001);
     CGFloat minY = 0.0; // The Y-axis will always start from 0.0
     CGFloat rangeY = maxY - minY;
     
@@ -71,34 +70,29 @@
     [self drawLineChartWithDataPoints:self.quickDataPoints lineColor:quickLineColor chartWidth:chartWidth chartHeight:chartHeight minY:minY rangeY:rangeY padding:padding];
     
     // Draw X-axis labels
-    for (int i = 0; i < self.xLabels.count; i++) {
-        CGFloat xPos = padding + (i * chartWidth / (self.xLabels.count - 1));
-        NSString *label = self.xLabels[i];
-        NSDictionary *attributes = @{NSFontAttributeName: [NSFont systemFontOfSize:10],
-                                     NSForegroundColorAttributeName: [NSColor blackColor]};
-        [label drawAtPoint:NSMakePoint(xPos, padding / 2) withAttributes:attributes];
-    }
+    [self drawXLabelsWithChartWidth:chartWidth chartHeight:chartHeight padding:padding];
     
     // Draw Y-axis labels
-    for (int i = 0; i <= 5; i++) {
-        CGFloat yPos = padding + ((chartHeight / 5) * i);
-        CGFloat value = minY + (rangeY / 5) * i;
-        NSString *label = [NSString stringWithFormat:@"%.1f", value];
-        NSDictionary *attributes = @{NSFontAttributeName: [NSFont systemFontOfSize:10],
-                                     NSForegroundColorAttributeName: [NSColor blackColor]};
-        [label drawAtPoint:NSMakePoint(padding / 2, yPos) withAttributes:attributes];
-    }
+    [self drawYLabelsWithChartHeight:chartHeight padding:padding minY:minY rangeY:rangeY];
+    
+    // Draw the legend (below the chart)
+    [self drawLegendWithMergeColor:mergeLineColor heapColor:heapLineColor quickColor:quickLineColor padding:padding chartWidth:chartWidth chartHeight:chartHeight];
+    
+      // Draw X and Y axis lines
+    [self drawAxisLinesWithPadding:padding chartWidth:chartWidth chartHeight:chartHeight];
+    // Draw axis labels
+    [self drawAxisLabelsWithChartWidth:chartWidth chartHeight:chartHeight padding:padding];
     
     [context restoreGraphicsState];
 }
 
-// Helper function to draw a line for one set of data points
+// Helper function to draw the line for one set of data points
 - (void)drawLineChartWithDataPoints:(NSArray *)dataPoints lineColor:(NSColor *)lineColor chartWidth:(CGFloat)chartWidth chartHeight:(CGFloat)chartHeight minY:(CGFloat)minY rangeY:(CGFloat)rangeY padding:(CGFloat)padding {
     NSBezierPath *path = [NSBezierPath bezierPath];
     [lineColor setStroke];
     
     for (int i = 0; i < dataPoints.count; i++) {
-        CGFloat xPos = padding + (i * chartWidth / (dataPoints.count - 1));
+        CGFloat xPos = 80 + (i * chartWidth / (dataPoints.count - 1));
         CGFloat yPos = padding + (([dataPoints[i] floatValue] - minY) / rangeY) * chartHeight;
         
         if (i == 0) {
@@ -110,8 +104,8 @@
     [path stroke];
 }
 
-// Helper function to find max value from multiple data sets
-- (CGFloat)calculateMaxValueFromDataPoints:(NSArray *)dataSets{
+// Helper function to find the max value from multiple data sets
+- (CGFloat)calculateMaxValueFromDataPoints:(NSArray *)dataSets {
     CGFloat maxVal = 0;
     for (NSArray *dataSet in dataSets) {
         CGFloat setMax = [[dataSet valueForKeyPath:@"@max.floatValue"] floatValue];
@@ -122,8 +116,96 @@
     return maxVal;
 }
 
-@end
+// Draw X-axis labels
+- (void)drawXLabelsWithChartWidth:(CGFloat)chartWidth chartHeight:(CGFloat)chartHeight padding:(CGFloat)padding {
+    for (int i = 0; i < self.xLabels.count; i++) {
+        CGFloat xPos = padding + (i * chartWidth / (self.xLabels.count - 1));
+        NSString *label = self.xLabels[i];
+        NSDictionary *attributes = @{NSFontAttributeName: [NSFont systemFontOfSize:10],
+                                     NSForegroundColorAttributeName: [NSColor whiteColor]};
+        [label drawAtPoint:NSMakePoint(xPos, padding / 2) withAttributes:attributes];
+    }
+}
 
+// Draw Y-axis labels with dynamic values based on the data range
+- (void)drawYLabelsWithChartHeight:(CGFloat)chartHeight padding:(CGFloat)padding minY:(CGFloat)minY rangeY:(CGFloat)rangeY {
+    int numberOfLabels = 5;
+    for (int i = 0; i <= numberOfLabels; i++) {
+        CGFloat yPos = padding - 10 + ((chartHeight / numberOfLabels) * i);
+        CGFloat value = minY + (rangeY / numberOfLabels) * i;
+        NSString *label = [NSString stringWithFormat:@"%.6f", value];
+        NSDictionary *attributes = @{NSFontAttributeName: [NSFont systemFontOfSize:10],
+                                     NSForegroundColorAttributeName: [NSColor whiteColor]};
+        [label drawAtPoint:NSMakePoint(padding / 2, yPos) withAttributes:attributes];
+    }
+}
+
+// Draw axis labels (X and Y axis)
+- (void)drawAxisLabelsWithChartWidth:(CGFloat)chartWidth chartHeight:(CGFloat)chartHeight padding:(CGFloat)padding {
+    NSString *xLabel = @"Dataset Size";
+    NSString *yLabel = @"Execution Time (ms)";
+    
+    // X-axis label
+    NSDictionary *xAttributes = @{NSFontAttributeName: [NSFont systemFontOfSize:12],
+                                  NSForegroundColorAttributeName: [NSColor whiteColor]};
+    [xLabel drawAtPoint:NSMakePoint(padding + chartWidth / 2 - 40, padding / 2 - 15) withAttributes:xAttributes];
+    
+    // Y-axis label
+    NSDictionary *yAttributes = @{NSFontAttributeName: [NSFont systemFontOfSize:12],
+                                  NSForegroundColorAttributeName: [NSColor whiteColor]};
+    [yLabel drawAtPoint:NSMakePoint( 10, padding + chartHeight+10) withAttributes:yAttributes];
+}
+
+- (void)drawAxisLinesWithPadding:(CGFloat)padding chartWidth:(CGFloat)chartWidth chartHeight:(CGFloat)chartHeight {
+    [[NSColor whiteColor] setStroke];
+    
+    // Draw X-axis (horizontal line)
+    NSBezierPath *xAxisPath = [NSBezierPath bezierPath];
+    [xAxisPath moveToPoint:NSMakePoint(80, padding)];
+    [xAxisPath lineToPoint:NSMakePoint(80 + chartWidth, padding)];
+    [xAxisPath stroke];
+    
+    // Draw Y-axis (vertical line)
+    NSBezierPath *yAxisPath = [NSBezierPath bezierPath];
+    [yAxisPath moveToPoint:NSMakePoint(80, padding)];
+    [yAxisPath lineToPoint:NSMakePoint(80, padding + chartHeight)];
+    [yAxisPath stroke];
+}
+
+
+// Helper function to draw the legend
+- (void)drawLegendWithMergeColor:(NSColor *)mergeColor heapColor:(NSColor *)heapColor quickColor:(NSColor *)quickColor padding:(CGFloat)padding chartWidth:(CGFloat)chartWidth chartHeight:(CGFloat)chartHeight {
+    CGFloat legendYPos = padding + chartHeight + 30.0;  // Space below the chart to draw the legend
+    
+    // Merge Sort Legend
+    [mergeColor setFill];
+    NSRect mergeBox = NSMakeRect(padding + 20, legendYPos, 20, 20);
+    NSRectFill(mergeBox);
+    NSString *mergeLabel = @"Merge Sort";
+    NSDictionary *mergeAttributes = @{NSFontAttributeName: [NSFont systemFontOfSize:12],
+                                      NSForegroundColorAttributeName: [NSColor whiteColor]};
+    [mergeLabel drawAtPoint:NSMakePoint(padding + 50, legendYPos) withAttributes:mergeAttributes];
+    
+    // Quick Sort Legend
+    [quickColor setFill];
+    NSRect quickBox = NSMakeRect(padding + 150, legendYPos, 20, 20);
+    NSRectFill(quickBox);
+    NSString *quickLabel = @"Quick Sort";
+    NSDictionary *quickAttributes = @{NSFontAttributeName: [NSFont systemFontOfSize:12],
+                                      NSForegroundColorAttributeName: [NSColor whiteColor]};
+    [quickLabel drawAtPoint:NSMakePoint(padding + 180, legendYPos) withAttributes:quickAttributes];
+    
+    // Heap Sort Legend
+    [heapColor setFill];
+    NSRect heapBox = NSMakeRect(padding + 280, legendYPos, 20, 20);
+    NSRectFill(heapBox);
+    NSString *heapLabel = @"Heap Sort";
+    NSDictionary *heapAttributes = @{NSFontAttributeName: [NSFont systemFontOfSize:12],
+                                      NSForegroundColorAttributeName: [NSColor whiteColor]};
+    [heapLabel drawAtPoint:NSMakePoint(padding + 310, legendYPos) withAttributes:heapAttributes];
+}
+
+@end
 
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
@@ -439,17 +521,17 @@
             chart.chartTitle = @"Sorting Algorithms Comparison";
 
             // Provide dummy data for each algorithm
-            NSArray *mergeSortData = @[@0.1, @0.5, @1.0, @0.7, @1.5];
+            NSArray *mergeSortData = @[@0, @0.000344, @0.002, @0.028];
             chart.mergeDataPoints = mergeSortData;
 
-            NSArray *quickSortData = @[@0.3, @0.6, @0.9, @0.8, @1.2];
+            NSArray *quickSortData = @[@0, @0.0002, @0.002391, @0.018320];
             chart.quickDataPoints = quickSortData;
 
-            NSArray *heapSortData = @[@0.2, @0.4, @0.8, @1.1, @1.3];
+            NSArray *heapSortData = @[@0, @0.00024,@0.003971, @0.040264];
             chart.heapDataPoints = heapSortData;
 
             // X-axis labels (dataset sizes)
-            NSArray *xLabels = @[@"100", @"500", @"1000", @"5000", @"10000"];
+            NSArray *xLabels = @[@"0",@"1000", @"10000", @"100000"];
             chart.xLabels = xLabels;
         }
 
