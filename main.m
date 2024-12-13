@@ -416,62 +416,46 @@
     [self.executionTimeLabel setStringValue:[NSString stringWithFormat:@"Execution Time: %f seconds \nSwaps: %d ", executionTime, swapCounter]];
 }
 
-// Toggle second window to show the chart
+
 - (void)toggleSecondWindow:(id)sender {
     if (self.isSecondWindowOpen) {
-        // If the second window is already open, bring it to the front
-        if (self.secondWindow) {
-            [self.secondWindow makeKeyAndOrderFront:nil];
-        }
+        [self.secondWindow makeKeyAndOrderFront:nil];
     } else {
-        // Create the second window only once, if not already created
         if (!self.secondWindow) {
-            // Create the second window with frame and properties
-            NSRect frame = NSMakeRect(0, 0, 1200, 600);  // Increased width to fit three charts
+            NSRect frame = NSMakeRect(0, 0, 1200, 600);  // Single window for one chart
             self.secondWindow = [[NSWindow alloc] initWithContentRect:frame
                                                            styleMask:(NSWindowStyleMaskTitled |
                                                                         NSWindowStyleMaskClosable |
                                                                         NSWindowStyleMaskResizable)
                                                              backing:NSBackingStoreBuffered
                                                                defer:NO];
-            [self.secondWindow setTitle:@"Sorting Algorithm Charts"];
-            
-            // Create the first chart for Merge Sort
-            LineChartView *mergeChart = [[LineChartView alloc] initWithFrame:NSMakeRect(0, 0, 400, 300)];
-            [self.secondWindow.contentView addSubview:mergeChart];
-            mergeChart.chartTitle = @"Merge Sort";
-            
-            // Create the second chart for Quick Sort
-            LineChartView *quickChart = [[LineChartView alloc] initWithFrame:NSMakeRect(400, 0, 400, 300)];
-            [self.secondWindow.contentView addSubview:quickChart];
-            quickChart.chartTitle = @"Quick Sort";
-            
-            // Create the third chart for Heap Sort
-            LineChartView *heapChart = [[LineChartView alloc] initWithFrame:NSMakeRect(800, 0, 400, 300)];
-            [self.secondWindow.contentView addSubview:heapChart];
-            heapChart.chartTitle = @"Heap Sort";
-            
-            // Provide dummy data for each chart (You can replace with real data later)
+            [self.secondWindow setTitle:@"Sorting Algorithm Chart"];
+
+            // Create one chart (with 3 lines)
+            LineChartView *chart = [[LineChartView alloc] initWithFrame:NSMakeRect(0, 0, 1200, 600)];
+            [self.secondWindow.contentView addSubview:chart];
+
+            // Set the chart title
+            chart.chartTitle = @"Sorting Algorithms Comparison";
+
+            // Provide dummy data for each algorithm
             NSArray *mergeSortData = @[@0.1, @0.5, @1.0, @0.7, @1.5];
-            mergeChart.mergeDataPoints = mergeSortData;  // Use mergeDataPoints
-            
+            chart.mergeDataPoints = mergeSortData;
+
             NSArray *quickSortData = @[@0.3, @0.6, @0.9, @0.8, @1.2];
-            quickChart.quickDataPoints = quickSortData;  // Use quickDataPoints
-            
-            NSArray *heapSortData = @[@0.2, @0.4, @0.8, @0.7, @1.0];
-            heapChart.heapDataPoints = heapSortData;    // Use heapDataPoints
-            
-            // Set the X-axis labels for each chart
+            chart.quickDataPoints = quickSortData;
+
+            NSArray *heapSortData = @[@0.2, @0.4, @0.8, @1.1, @1.3];
+            chart.heapDataPoints = heapSortData;
+
+            // X-axis labels (dataset sizes)
             NSArray *xLabels = @[@"100", @"500", @"1000", @"5000", @"10000"];
-            mergeChart.xLabels = xLabels;
-            quickChart.xLabels = xLabels;
-            heapChart.xLabels = xLabels;
+            chart.xLabels = xLabels;
         }
-        
-        // Make the window visible and bring it to the front
+
         [self.secondWindow makeKeyAndOrderFront:nil];
-        self.isSecondWindowOpen = YES;
     }
+    self.isSecondWindowOpen = !self.isSecondWindowOpen;
 }
 
 
