@@ -248,7 +248,7 @@
     double executionTime = 0.0;
     int swapCounter=0;
 
-    NSRect frame = NSMakeRect(0, 0, 2000, 600);
+    NSRect frame = NSMakeRect(0, 0, 1200, 600);
     // Inside applicationDidFinishLaunching
    [[NSNotificationCenter defaultCenter] addObserver:self
                                          selector:@selector(windowWillClose:)
@@ -257,8 +257,9 @@
 
     self.window = [[NSWindow alloc] initWithContentRect:frame
                                                styleMask:(NSWindowStyleMaskTitled |
-                                                          NSWindowStyleMaskClosable |
-                                                          NSWindowStyleMaskResizable)
+                                                        NSWindowStyleMaskClosable |
+                                                        NSWindowStyleMaskResizable |
+                                                        NSWindowStyleMaskMiniaturizable)
                                                  backing:NSBackingStoreBuffered
                                                    defer:NO];
     [self.window setTitle:@"Sorting Algorithm Visualizer"];
@@ -327,7 +328,7 @@
     [self.dropdownLabelAlgorithmType setDrawsBackground:NO];
     [self.dropdownLabelAlgorithmType setEditable:NO];
     [self.dropdownLabelAlgorithmType setSelectable:NO];
-    [self.dropdownLabelAlgorithmType setStringValue:@"Step 3.Choose sort type:"];
+    [self.dropdownLabelAlgorithmType setStringValue:@"Step 3. Choose sort type:"];
     [self.window.contentView addSubview:self.dropdownLabelAlgorithmType ];
 
     // Choose sort type DROPDOWN
@@ -361,12 +362,27 @@
     [self.window.contentView addSubview:self.executionTimeLabel];  
 
     NSButton *toggleSecondWindowButton = [[NSButton alloc] initWithFrame:NSMakeRect(350, 300, 200, 30)];
-    [toggleSecondWindowButton setTitle:@"Open Second Window"];
+    [toggleSecondWindowButton setTitle:@"View chart"];
     [toggleSecondWindowButton setButtonType:NSButtonTypeMomentaryPushIn];
     [toggleSecondWindowButton setBezelStyle:NSBezelStyleRounded];
     [toggleSecondWindowButton setTarget:self];
     [toggleSecondWindowButton setAction:@selector(toggleSecondWindow:)];
     [self.window.contentView addSubview:toggleSecondWindowButton];
+    // Add Instructions Text at the bottom of the window
+    NSTextField *instructionsText = [[NSTextField alloc] initWithFrame:NSMakeRect(100, 50, 1200, 200)];
+    [instructionsText setBezeled:NO];
+    [instructionsText setDrawsBackground:NO];
+    [instructionsText setEditable:NO];
+    [instructionsText setSelectable:NO];
+    [instructionsText setStringValue:
+    @"Help:\n\n"
+    "1. Choose Data Type. Select 'Integer' or 'Real' from the dropdown list.\n\n"
+    "2. Choose Data Size. Select the array size you wish to generate (1000, 10000, or 100000).\n\n"
+    "3. Generate Array. Click 'Generate array' button to generate a random array of the selected type and size.\n\n"
+    "4. Sort Generated Array. Choose a sorting algorithm (Merge, Quick, or Heap) and click the button to sort the generated array.\n\n"
+    "5. Execution Time. After sorting, the execution time and the number of swaps will be displayed.\n\n"
+    "6. Open Second Window. Click 'View chart' button to view a chart comparing the performance of the sorting algorithms with different data sizes (1000, 10000, 100000)."];
+    [self.window.contentView addSubview:instructionsText];
 
     // Initialize the flag for the second window
     self.isSecondWindowOpen = NO;
@@ -508,7 +524,8 @@
             self.secondWindow = [[NSWindow alloc] initWithContentRect:frame
                                                            styleMask:(NSWindowStyleMaskTitled |
                                                                         NSWindowStyleMaskClosable |
-                                                                        NSWindowStyleMaskResizable)
+                                                                        NSWindowStyleMaskResizable |
+                                                                        NSWindowStyleMaskMiniaturizable)
                                                              backing:NSBackingStoreBuffered
                                                                defer:NO];
             [self.secondWindow setTitle:@"Sorting Algorithm Chart"];
@@ -531,7 +548,7 @@
             chart.heapDataPoints = heapSortData;
 
             // X-axis labels (dataset sizes)
-            NSArray *xLabels = @[@"0",@"1000", @"10000", @"100000"];
+            NSArray *xLabels = @[@"",@"1000", @"10000", @"100000"];
             chart.xLabels = xLabels;
         }
 
