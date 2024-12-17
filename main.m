@@ -57,11 +57,11 @@
     
     CGFloat padding = 40.0;
     CGFloat chartWidth = self.frame.size.width - 2 * padding - 40.0;
-    CGFloat chartHeight = self.frame.size.height - 100.0 - 2 * padding;  // Reduced height for the chart to make space for the legend
+    CGFloat chartHeight = self.frame.size.height - 100.0 - 2 * padding;  
     
     // Y-axis range
     CGFloat maxY = fmax([self calculateMaxValueFromDataPoints:@[self.mergeDataPoints, self.heapDataPoints, self.quickDataPoints]], 0.0000001);
-    CGFloat minY = 0.0; // The Y-axis will always start from 0.0
+    CGFloat minY = 0.0; 
     CGFloat rangeY = maxY - minY;
     
     // Draw the lines for Merge, Heap, and Quick Sorts (on one chart)
@@ -76,10 +76,11 @@
     [self drawYLabelsWithChartHeight:chartHeight padding:padding minY:minY rangeY:rangeY];
     
     // Draw the legend (below the chart)
-    [self drawLegendWithMergeColor:mergeLineColor heapColor:heapLineColor quickColor:quickLineColor padding:padding chartWidth:chartWidth chartHeight:chartHeight];
+    [self drawLegendWithMergeColor:mergeLineColor heapColor:heapLineColor quickColor:quickLineColor padding:80 chartWidth:chartWidth chartHeight:chartHeight];
     
       // Draw X and Y axis lines
     [self drawAxisLinesWithPadding:padding chartWidth:chartWidth chartHeight:chartHeight];
+
     // Draw axis labels
     [self drawAxisLabelsWithChartWidth:chartWidth chartHeight:chartHeight padding:padding];
     
@@ -133,7 +134,7 @@
     for (int i = 0; i <= numberOfLabels; i++) {
         CGFloat yPos = padding - 10 + ((chartHeight / numberOfLabels) * i);
         CGFloat value = minY + (rangeY / numberOfLabels) * i;
-        NSString *label = [NSString stringWithFormat:@"%.6f", value];
+        NSString *label = [NSString stringWithFormat:@"%.3f", value];
         NSDictionary *attributes = @{NSFontAttributeName: [NSFont systemFontOfSize:10],
                                      NSForegroundColorAttributeName: [NSColor whiteColor]};
         [label drawAtPoint:NSMakePoint(padding / 2, yPos) withAttributes:attributes];
@@ -143,7 +144,7 @@
 // Draw axis labels (X and Y axis)
 - (void)drawAxisLabelsWithChartWidth:(CGFloat)chartWidth chartHeight:(CGFloat)chartHeight padding:(CGFloat)padding {
     NSString *xLabel = @"Dataset Size";
-    NSString *yLabel = @"Execution Time (ms)";
+    NSString *yLabel = @"Execution Time (ms * 10(power-4))";
     
     // X-axis label
     NSDictionary *xAttributes = @{NSFontAttributeName: [NSFont systemFontOfSize:12],
@@ -348,8 +349,8 @@
     [sortGeneratedButton setTarget:self];
     [sortGeneratedButton setBordered:NO];
     sortGeneratedButton.wantsLayer = YES;
-    sortGeneratedButton.layer.backgroundColor = [[NSColor systemBlueColor] CGColor]; // Set background color
-    sortGeneratedButton.layer.cornerRadius = 5.0; // Optional: round corners
+    sortGeneratedButton.layer.backgroundColor = [[NSColor systemBlueColor] CGColor]; 
+    sortGeneratedButton.layer.cornerRadius = 5.0; 
     [sortGeneratedButton setAction:@selector(sortGenerated:)];
     [self.window.contentView addSubview:sortGeneratedButton];
    
@@ -538,13 +539,13 @@
             chart.chartTitle = @"Sorting Algorithms Comparison";
 
             // Provide dummy data for each algorithm
-            NSArray *mergeSortData = @[@0, @0.000344, @0.002, @0.028];
+            NSArray *mergeSortData = @[@0, @3.45, @33.68, @239.25];
             chart.mergeDataPoints = mergeSortData;
 
-            NSArray *quickSortData = @[@0, @0.0002, @0.002391, @0.018320];
+            NSArray *quickSortData = @[@0, @2.06 ,@24.84, @177.32];
             chart.quickDataPoints = quickSortData;
 
-            NSArray *heapSortData = @[@0, @0.00024,@0.003971, @0.040264];
+            NSArray *heapSortData = @[ @0, @3.28, @45.87, @360.01];
             chart.heapDataPoints = heapSortData;
 
             // X-axis labels (dataset sizes)
