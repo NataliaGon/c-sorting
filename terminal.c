@@ -6,6 +6,7 @@
 #include "sort.h"
 
 double executionTime;
+
 void terminal_integer(const char *algorithmType, int dataSize, int *array)
 {
     printf("The algorithmType is: %s\n, %d\n", algorithmType, dataSize);

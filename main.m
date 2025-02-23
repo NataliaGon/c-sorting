@@ -4,11 +4,11 @@
 
 
 @interface LineChartView : NSView
-@property (nonatomic, strong) NSArray *mergeDataPoints;  // Y-values for Merge
-@property (nonatomic, strong) NSArray *heapDataPoints;   // Y-values for Heap
-@property (nonatomic, strong) NSArray *quickDataPoints;  // Y-values for Quick
-@property (nonatomic, strong) NSArray *xLabels;          // X-axis labels (dataset sizes)
-@property (nonatomic, strong) NSString *chartTitle;      // Title of the chart
+@property (nonatomic, strong) NSArray *mergeDataPoints;  
+@property (nonatomic, strong) NSArray *heapDataPoints;   
+@property (nonatomic, strong) NSArray *quickDataPoints;  
+@property (nonatomic, strong) NSArray *xLabels;          
+@property (nonatomic, strong) NSString *chartTitle;      
 @end
 
 @implementation LineChartView
@@ -50,7 +50,7 @@
     NSGraphicsContext *context = [NSGraphicsContext currentContext];
     [context saveGraphicsState];
     
-    // Set up drawing context
+
     NSColor *mergeLineColor = [NSColor systemBlueColor];
     NSColor *heapLineColor = [NSColor systemGreenColor];
     NSColor *quickLineColor = [NSColor systemRedColor];
@@ -59,35 +59,35 @@
     CGFloat chartWidth = self.frame.size.width - 2 * padding - 40.0;
     CGFloat chartHeight = self.frame.size.height - 100.0 - 2 * padding;  
     
-    // Y-axis range
+ 
     CGFloat maxY = fmax([self calculateMaxValueFromDataPoints:@[self.mergeDataPoints, self.heapDataPoints, self.quickDataPoints]], 0.0000001);
     CGFloat minY = 0.0; 
     CGFloat rangeY = maxY - minY;
     
-    // Draw the lines for Merge, Heap, and Quick Sorts (on one chart)
+
     [self drawLineChartWithDataPoints:self.mergeDataPoints lineColor:mergeLineColor chartWidth:chartWidth chartHeight:chartHeight minY:minY rangeY:rangeY padding:padding];
     [self drawLineChartWithDataPoints:self.heapDataPoints lineColor:heapLineColor chartWidth:chartWidth chartHeight:chartHeight minY:minY rangeY:rangeY padding:padding];
     [self drawLineChartWithDataPoints:self.quickDataPoints lineColor:quickLineColor chartWidth:chartWidth chartHeight:chartHeight minY:minY rangeY:rangeY padding:padding];
     
-    // Draw X-axis labels
+
     [self drawXLabelsWithChartWidth:chartWidth chartHeight:chartHeight padding:padding];
     
-    // Draw Y-axis labels
+  
     [self drawYLabelsWithChartHeight:chartHeight padding:padding minY:minY rangeY:rangeY];
     
-    // Draw the legend (below the chart)
+    
     [self drawLegendWithMergeColor:mergeLineColor heapColor:heapLineColor quickColor:quickLineColor padding:80 chartWidth:chartWidth chartHeight:chartHeight];
     
-      // Draw X and Y axis lines
+   
     [self drawAxisLinesWithPadding:padding chartWidth:chartWidth chartHeight:chartHeight];
 
-    // Draw axis labels
+    
     [self drawAxisLabelsWithChartWidth:chartWidth chartHeight:chartHeight padding:padding];
     
     [context restoreGraphicsState];
 }
 
-// Helper function to draw the line for one set of data points
+
 - (void)drawLineChartWithDataPoints:(NSArray *)dataPoints lineColor:(NSColor *)lineColor chartWidth:(CGFloat)chartWidth chartHeight:(CGFloat)chartHeight minY:(CGFloat)minY rangeY:(CGFloat)rangeY padding:(CGFloat)padding {
     NSBezierPath *path = [NSBezierPath bezierPath];
     [lineColor setStroke];
@@ -105,7 +105,7 @@
     [path stroke];
 }
 
-// Helper function to find the max value from multiple data sets
+
 - (CGFloat)calculateMaxValueFromDataPoints:(NSArray *)dataSets {
     CGFloat maxVal = 0;
     for (NSArray *dataSet in dataSets) {
@@ -117,7 +117,7 @@
     return maxVal;
 }
 
-// Draw X-axis labels
+
 - (void)drawXLabelsWithChartWidth:(CGFloat)chartWidth chartHeight:(CGFloat)chartHeight padding:(CGFloat)padding {
     for (int i = 0; i < self.xLabels.count; i++) {
         CGFloat xPos = padding + (i * chartWidth / (self.xLabels.count - 1));
@@ -128,7 +128,7 @@
     }
 }
 
-// Draw Y-axis labels with dynamic values based on the data range
+
 - (void)drawYLabelsWithChartHeight:(CGFloat)chartHeight padding:(CGFloat)padding minY:(CGFloat)minY rangeY:(CGFloat)rangeY {
     int numberOfLabels = 5;
     for (int i = 0; i <= numberOfLabels; i++) {
@@ -141,17 +141,15 @@
     }
 }
 
-// Draw axis labels (X and Y axis)
+
 - (void)drawAxisLabelsWithChartWidth:(CGFloat)chartWidth chartHeight:(CGFloat)chartHeight padding:(CGFloat)padding {
     NSString *xLabel = @"Dataset Size";
     NSString *yLabel = @"Execution Time (ms * 10(power-4))";
     
-    // X-axis label
     NSDictionary *xAttributes = @{NSFontAttributeName: [NSFont systemFontOfSize:12],
                                   NSForegroundColorAttributeName: [NSColor whiteColor]};
     [xLabel drawAtPoint:NSMakePoint(padding + chartWidth / 2 - 40, padding / 2 - 15) withAttributes:xAttributes];
     
-    // Y-axis label
     NSDictionary *yAttributes = @{NSFontAttributeName: [NSFont systemFontOfSize:12],
                                   NSForegroundColorAttributeName: [NSColor whiteColor]};
     [yLabel drawAtPoint:NSMakePoint( 10, padding + chartHeight+10) withAttributes:yAttributes];
@@ -159,14 +157,13 @@
 
 - (void)drawAxisLinesWithPadding:(CGFloat)padding chartWidth:(CGFloat)chartWidth chartHeight:(CGFloat)chartHeight {
     [[NSColor whiteColor] setStroke];
-    
-    // Draw X-axis (horizontal line)
+
     NSBezierPath *xAxisPath = [NSBezierPath bezierPath];
     [xAxisPath moveToPoint:NSMakePoint(80, padding)];
     [xAxisPath lineToPoint:NSMakePoint(80 + chartWidth, padding)];
     [xAxisPath stroke];
     
-    // Draw Y-axis (vertical line)
+
     NSBezierPath *yAxisPath = [NSBezierPath bezierPath];
     [yAxisPath moveToPoint:NSMakePoint(80, padding)];
     [yAxisPath lineToPoint:NSMakePoint(80, padding + chartHeight)];
@@ -174,11 +171,10 @@
 }
 
 
-// Helper function to draw the legend
 - (void)drawLegendWithMergeColor:(NSColor *)mergeColor heapColor:(NSColor *)heapColor quickColor:(NSColor *)quickColor padding:(CGFloat)padding chartWidth:(CGFloat)chartWidth chartHeight:(CGFloat)chartHeight {
-    CGFloat legendYPos = padding + chartHeight + 30.0;  // Space below the chart to draw the legend
+    CGFloat legendYPos = padding + chartHeight + 30.0;  
     
-    // Merge Sort Legend
+
     [mergeColor setFill];
     NSRect mergeBox = NSMakeRect(padding + 20, legendYPos, 20, 20);
     NSRectFill(mergeBox);
@@ -187,7 +183,7 @@
                                       NSForegroundColorAttributeName: [NSColor whiteColor]};
     [mergeLabel drawAtPoint:NSMakePoint(padding + 50, legendYPos) withAttributes:mergeAttributes];
     
-    // Quick Sort Legend
+
     [quickColor setFill];
     NSRect quickBox = NSMakeRect(padding + 150, legendYPos, 20, 20);
     NSRectFill(quickBox);
@@ -196,7 +192,7 @@
                                       NSForegroundColorAttributeName: [NSColor whiteColor]};
     [quickLabel drawAtPoint:NSMakePoint(padding + 180, legendYPos) withAttributes:quickAttributes];
     
-    // Heap Sort Legend
+
     [heapColor setFill];
     NSRect heapBox = NSMakeRect(padding + 280, legendYPos, 20, 20);
     NSRectFill(heapBox);
@@ -224,9 +220,8 @@
 @property (nonatomic, strong) NSString *dataSize;
 @property (nonatomic) int *arrayInteger;
 @property (nonatomic) double *arrayReal;
-@property (strong) NSWindow *secondWindow;  // Second window property
-@property (nonatomic) BOOL isSecondWindowOpen;  // Flag to track if second window is open
-
+@property (strong) NSWindow *secondWindow;  
+@property (nonatomic) BOOL isSecondWindowOpen;  
 
 @end
 
@@ -247,7 +242,7 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     double executionTime = 0.0;
-    int swapCounter=0;
+    int swapCounter = 0;
 
     NSRect frame = NSMakeRect(0, 0, 1200, 600);
     // Inside applicationDidFinishLaunching
@@ -521,7 +516,7 @@
         [self.secondWindow makeKeyAndOrderFront:nil];
     } else {
         if (!self.secondWindow) {
-            NSRect frame = NSMakeRect(0, 0, 1200, 600);  // Single window for one chart
+            NSRect frame = NSMakeRect(0, 0, 1200, 600);  
             self.secondWindow = [[NSWindow alloc] initWithContentRect:frame
                                                            styleMask:(NSWindowStyleMaskTitled |
                                                                         NSWindowStyleMaskClosable |
@@ -538,7 +533,6 @@
             // Set the chart title
             chart.chartTitle = @"Sorting Algorithms Comparison";
 
-            // Provide dummy data for each algorithm
             NSArray *mergeSortData = @[@0, @3.45, @33.68, @239.25];
             chart.mergeDataPoints = mergeSortData;
 

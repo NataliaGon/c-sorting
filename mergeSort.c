@@ -57,7 +57,7 @@ void mergeSort_integer(int arr[], int left, int right)
         mergeSort_integer(arr, left, mid);
         mergeSort_integer(arr, mid + 1, right);
 
-        merge_integer(arr, left, mid, right);
+        merge_integer(arr, left, mid, right); // Combine the two sorted arrays
     }
 }
 
